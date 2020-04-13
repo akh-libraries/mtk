@@ -1,4 +1,92 @@
-  
+
+
+// <---------- build layout
+
+var new_layout = '<div id="map_inputs">'+
+    '<div>'+
+        '<a href="#" class="btn instructions">ohjeet</a>'+
+        '<a href="#" class="btn calculations">'+I18n.t("zoning.show.counts")+'</a>'+
+        '<a href="#" class="btn" id="send_codes">Lähetä kaivot ccs:ään</a>'+
+    '</div>'+
+    '<div id="object_scale_wrap">'+I18n.t("zoning.show.object_scale")+':'+
+        '<select id="object_scale" name="object_scale">'+
+        '<option value="2">100%</option>'+
+        '<option value="2.5">125%</option>'+
+        '<option value="3">150%</option>'+
+        '<option value="3.5">175%</option>'+
+        '<option value="4">200%</option>'+
+        '</select>'+
+    '</div>'+
+    '<label>'+I18n.t("zoning.show.default_ground_val")+':<input class="default_ground_val" type="text" name="default_ground_val" value="12.50"></label>'+
+    '<label>'+I18n.t("zoning.show.default_bottom_val")+':<input class="default_bottom_val" type="text" name="default_bottom_val" value="11.50"></label>'+
+    '<label>'+I18n.t("zoning.show.map_scale")+', 1 :<input id="map_scale" type="text" name="map_scale" value="200"></label>'+
+    '<label>'+I18n.t("zoning.show.multiplier")+':<input id="multiplier" type="text" name="multiplier" value="10"></label>'+
+    '<div id="code_warnings"></div>'+
+'</div>'+
+'<h2 class="slot_title">'+I18n.t("zoning.show.plan")+'</h2>'+
+'<div id="map_overflow_wrap">'+
+    '<a href="#" class="fullscreen_button"><span></span></a>'+
+    '<div id="map_wrap">'+
+        '<div id="map_zoom_wrap">'+
+            '<div id="map">'+
+                '<div id="center_point"></div>'+
+                '<img class="pdf_image" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAABCAQAAACx6dw/AAAADUlEQVR42mP8/58BCAALAwIAxXfYpQAAAABJRU5ErkJggg==" alt="map" />'+
+                '<canvas id="pdf-canvas" style="display:none;"></canvas>'+
+                '<div id="objects_wrap">'+
+                '</div>'+
+            '</div>'+
+        '</div>'+
+    '</div>'+
+'</div>'+
+'<div id="inlet_list_wrap" style="display:none;"></div>'+
+'<div id="menu">'+
+    '<a href="#" class="menu_toggle"></a>'+
+    '<div id="menu_items"></div>'+
+'</div>'+
+'<div id="options"></div>'+
+'<a href="#" id="release_hook">Vapauta</a>'+
+'<a href="#" id="close_options">'+I18n.t("zoning.commands.close_options")+'</a>'+
+'<div id="counts">'+
+    '<a href="#" class="close_pop">x</a>'+
+    '<div><div class="counter_title">'+I18n.t("zoning.show.count_measure")+':</div> <span id="measure"></span></div>'+
+    '<div><div class="counter_title">'+I18n.t("zoning.show.count_wells")+':</div> <span id="count"></span></div>'+
+'</div>'+
+'<div id="inst">'+
+    '<a href="#" class="close_pop">x</a>'+
+    '<div><section>'+
+        '<h3><span class="mouse_icon"></span>Käytätkö hiirtä?</h3>'+
+        '<p>Karttaa liikutetaan / objekteja siirretään pitämällä hiiren vasenta näppäintä pohjassa</p>'+
+        '<p>Oikean napin painallus lisää kartalle objektin / avaa objektin valikon</p>'+
+        '<p>Rullalla zoomaillaan</p>'+
+    '</section>'+
+    '<section>'+
+        '<h3>Hyvä tietää</h3>'+
+        '<p>Kirjoita "kaivonumero/id"-kenttään vain kaivonumero, kaivon tyyppi haetaan automaattisesti</p>'+
+		'<p>Kaivolle ei ole määritelty poistoa = nolla otetaan pohjoisesta</p>'+
+		'<p>Ulkoinen yhde on tulo = irrallinen yhde jolla asteet menee kaivon suunnan mukaan</p>'+
+		'<p>Ulkoinen yhde on poisto = kaivoon liitetyt yhteet ottavat nollan siitä</p>'+
+		'<p>Ulkoisia yhteitä käytetään vain jos kaivo liittyy johonkin vanhaan linjaan</p>'+
+		'<p>Ulkoinen poisto-yhde estää kaivoa yhdistämästä linjaa muihin kaivoihin/jos on määritelty linja niin ulkoista poistoa ei voi lisätä</p>'+
+		'<p>Kaivolle voi antaa useamman poiston, kakkospoisto näkyy ccs:ssä tulona, mutta siirtyy massoituksessa takaisin kakkospoistoksi</p>'+
+		'<p>Kakkospoisto estää antamasta "etappimerkintää" ykköspoistolle</p>'+
+		'<p>Etappimerkintä nappi häviää jos se on jo määritelty ja kyseisen kaivon valikon avaa uudelleen</p>'+
+		
+		'<h3>Seuraavien asioiden muokkaaminen manuaalisesti CCS:ssä estää tilauksen avautumisen massoituksessa</h3>'+
+		'<p>Kaivo id:n vaihtaminen</p>'+
+		'<p>Kaivon poisto tai lisäys</p>'+
+		'<p>Tulon/poiston poistaminen</p><br>'+
+		
+		'<div style="color:#e40000;font-weight:700;">Huom. Jos kaivot on alunperin lisätty massoitustyökalulla, tee muokkaukset myös massoitustyökalulla</div>'+
+	'</section>'+
+	'</div>'+
+'</div>'+
+'<span class="spinner"></span>'+
+'<a href="#" class="warning active"><span class="screen_arrow">&#10554;</span><span class="screen_w"></span><span class="screen_h"></span></a>';
+
+// -------------->
+
+$('#zoning_app').html(new_layout);
+$('.container').addClass('container-fluid').removeClass('container');
 
   var body = $('body'),
       map_overflow_wrap = $('#map_overflow_wrap'),
@@ -33,103 +121,89 @@
       posY,
       orig_size,
       multiplier_val = multiplier.val();
+	  
+	  
+var helper = null;
+var api;
+var wor = $('#content').attr('data-wellorder-reference');
 
-  window.addEventListener('resize', function(event){
-    layout();
-    recalc();
+(function () {
+       window.api = ZoningData();
+})();
+
+  api.categories(function(o) {
+      console.log(o);
+      helper = api.category_helper(o.categories);
+  }, function(o) {
+      console.log('Failure');
+      console.log(o);
   });
-
-  function layout() {
-    var wW = $(window).width();
-    var ncW = wW - 420;
-    
-    if(wW > 1080){
-      ncW = wW - 440;
-    } else {
-      ncW = wW - 220;  
-    }
-    
-    map_overflow_wrap.css({'width': ncW});
-  }
-
-
-// <---------- missing html from layout
-$('.obj_eraser').attr('data-warning_msg', 'Huom. Olet poistamassa kaivoja!');
-$('#options').after('<a href="#" id="release_hook">Vapauta</a>');
-
-$('#map_inputs').prepend('<a href="#" class="map_btn instructions">ohjeet</a><a href="#" class="map_btn calculations">laskelmat</a>');
-$('#map_inputs').append('<a href=href="#" class="map_btn" id="send_codes">Lähetä kaivot ccs:ään</a>');
-
-var inst = '<div><section>'+
-        '<h3><span class="mouse_icon"></span>Käytätkö hiirtä?</h3>'+
-        '<p>Karttaa liikutetaan / objekteja siirretään pitämällä hiiren vasenta näppäintä pohjassa</p>'+
-        '<p>Oikean napin painallus lisää kartalle objektin / avaa objektin valikon</p>'+
-        '<p>Rullalla zoomaillaan</p>'+
-      '</section>'+
-      '<section>'+
-        '<h3><span class="touch_icon"></span>Käytätkö kosketusnäyttöä?</h3>'+
-        '<p>Pitkä painallus lisää kartalle objektin</p>'+
-        '<p>Objektia voit liikuttaa tuplapainamalla sitä</p>'+
-      '</section>'+
-      '<section class="import_csv">'+
-        '<h3>csv placeholder</h3>'+
-        '<input type="file" id="csv_upload" />'+
-      '</section>'+
-      '</div>';
-
-map_overflow_wrap.prepend('<a href="#" class="fullscreen_button"><span></span></a>');
-
-$('#send_codes').after('<div id="code_warnings"></div>');
-$('#counts').after('<div id="inst"><a href="#" class="close_pop">x</a>'+inst+'</div>');
-$('#counts').append('<a href="#" class="close_pop">x</a>');
-$('.spinner').after('<a href="#" class="warning active"><span class="screen_arrow">&#10554;</span><span class="screen_w"></span><span class="screen_h"></span></a>');
   
-// -------------->
+  api.wellgroups(function(o) {
 
+        var tags = '<a href="#" class="tag obj_eraser" data-warning_msg="Huom. Olet poistamassa kaivoja!">'+I18n.t("zoning.commands.eraser")+'</a>';
 
-  $(document).on('click', '.calculations', function (event) {
-    $('#counts').addClass('active');
-  }); 
+        o.sort((a, b) => a.name.localeCompare(b.name))
+    
+        $.each(o, function(i, item) {
+			if(o[i].disabled !== true){
+				tags += '<a href="#" class="tag" data-type="'+o[i].product_family.toUpperCase()+'" data-factory="'+o[i].factory+'" data-identifier="'+o[i].identifier+'">'+o[i].name+'</a>';
+			}
+        });
 
-  $(document).on('click', '.instructions', function (event) {
-    $('#inst').addClass('active');
-  });
+        $('#menu_items').append(tags);
+    
+      }, function(o) {
+          console.log('Failure');
+      });
 
-  $(document).on('click', '.close_pop', function (event) {
-    $('#inst, #counts').removeClass('active');
-  });
+    window.addEventListener('resize', function(event){
+        recalc();
+    });
 
-  $(document).on('click', '.menu_toggle', function(e) {
-    e.preventDefault();
-    $('#menu').toggleClass('closed');
-	});
+    $(document).on('click', '.calculations', function (event) {
+        $('#counts').addClass('active');
+    }); 
 
-  function recalc_distances() {
+    $(document).on('click', '.instructions', function (event) {
+        $('#inst').addClass('active');
+    });
+
+    $(document).on('click', '.close_pop', function (event) {
+        $('#inst, #counts').removeClass('active');
+    });
+
+    $(document).on('click', '.menu_toggle', function(e) {
+        e.preventDefault();
+        $('#menu').toggleClass('closed');
+    });
+
+    function recalc_distances() {
     var map_orig_piece = map_scale.attr('data-irl_width') || 100;
-    map_irl_width = map_orig_piece * map_scale.val() / 100;
-    map_size = map_irl_width / map.width();
-    recalc();
-  }
+        map_irl_width = map_orig_piece * map_scale.val() / 100;
+        map_size = map_irl_width / map.width();
+        recalc();
+    }
   
-  $(document).on('input', '#object_scale', function (event) {
-    scale_factor = $(this).val();
-    rescale();
-  });
+    $(document).on('input', '#object_scale', function (event) {
+        scale_factor = $(this).val();
+        rescale();
+    });
   
-  $(document).on('input', '#map_scale', function (event) {
-    recalc_distances();
-  });
+    $(document).on('input', '#map_scale', function (event) {
+        recalc_distances();
+    });
   
-  $(document).on('input', '#multiplier', function (event) {
-    multiplier_val = multiplier.val();
-    recalc_distances();
-  });
+    $(document).on('input', '#multiplier', function (event) {
+        multiplier_val = multiplier.val();
+        recalc_distances();
+    });
   
 
-  $('.load_pdf_image').on('click',function(e){
-    e.preventDefault();
-    $('#load_pdf').trigger('click');
-  });
+    $('.load_pdf_image').on('click',function(e){
+        e.preventDefault();
+        $('#load_pdf').trigger('click');
+    });
   
 	map.mousedown(function(e) {
     if (e.which === 3) {
@@ -151,7 +225,7 @@ $('#map_overflow_wrap, #vr_wrap').on('mousewheel DOMMouseScroll', function (e) {
 });
   
   
-	$(document).on('input change', '.details input, .details select', function () {
+	$(document).on('input change', '.details .num_field, .details select', function () {
 
     var field = $(this);
     var cur_value = field.val();
@@ -173,26 +247,10 @@ $('#map_overflow_wrap, #vr_wrap').on('mousewheel DOMMouseScroll', function (e) {
       menu_to_source($('.object.active'));
       recalc();
 	});
-
-
-	$(document).on('click', '.rot_pdf_left, .rot_pdf_right', function(e) {
-		e.preventDefault();
-		var clicked = $(this);
-    
-    if(clicked.is('.rot_pdf_left')){
-      image_rotation = image_rotation - 90;
-    } else if(clicked.is('.rot_pdf_right')){
-      image_rotation = image_rotation + 90;
-    }
-
-
-    
-	});
     
 
 var element = document.querySelector('#map_zoom_wrap');
 var zoom_tick = 0.2;
-
 
 var instance = panzoom(element, {
   zoomSpeed: zoom_tick,
@@ -247,7 +305,272 @@ instance.on('zoom', function(e) {
       recalc();
 	});
   
-  
+
+function load_inlet_list(order_json) {
+	
+	var inlet_list_wrap = $('#inlet_list_wrap');
+	var well_ids = [];
+	var order = order_json;
+
+	for (var i = 0; i < order.length; i++) {
+		var obj_wellgroup = order[i].wellgroup;
+		well_ids.push(obj_wellgroup);
+	}
+
+	var unique_chamber = well_ids.filter((item, i, ar) => ar.indexOf(item) === i);
+	
+	var inlet_set_1 = helper.category_and_children(helper.find_category_by_path(['yhde', 'poisto']));
+	var inlet_set_2 = helper.category_and_children(helper.find_category_by_path(['yhde', 'tulo_tai_poisto']));
+
+	$.each(unique_chamber, function( key, value ) {
+		
+		api.wellingredients(
+			unique_chamber,
+			function(o) {
+				var json_set_1 = helper.filter_ingredients_by_categories(o, inlet_set_1);
+				var json_set_2 = helper.filter_ingredients_by_categories(o, inlet_set_2);
+				
+				$.each(json_set_1, function(i, item) {
+					var found = inlet_list_wrap.find('.inlet[data-id="'+json_set_1[i].code+'"]').length;
+					if(!found){inlet_list_wrap.append('<span class="inlet" data-id="'+json_set_1[i].code+'" data-title="'+json_set_1[i].name.toUpperCase()+'" data-diameter="'+json_set_1[i].diameter+'" data-unit="'+json_set_1[i].unit+'"></span>');}
+				});
+				
+				$.each(json_set_2, function(i, item) {
+					var found = inlet_list_wrap.find('.inlet[data-id="'+json_set_2[i].code+'"]').length;
+					if(!found){inlet_list_wrap.append('<span class="inlet" data-id="'+json_set_2[i].code+'" data-title="'+json_set_2[i].name.toUpperCase()+'" data-diameter="'+json_set_2[i].diameter+'" data-unit="'+json_set_2[i].unit+'"></span>');}
+				
+					if(key+1 >= unique_chamber.length && i+1 >= json_set_2.length){
+						setTimeout(function(){ reload_order(order); }, 2000);
+					}
+				
+				});
+				
+			}
+			
+		);
+		
+	});
+	
+}
+
+function reload_order(order_json) {
+
+	try {
+		var order = order_json;
+			
+		for (i = 0; i < order.length; i++) {
+
+		var obj_id_full = order[i].identifier,
+			obj_wellgroup = order[i].wellgroup,
+			obj_title = $('.tag[data-identifier="'+obj_wellgroup+'"]').text(),
+			obj_type = $('.tag[data-identifier="'+obj_wellgroup+'"]').attr('data-type'),
+			obj_id = obj_id_full.replace(obj_type+'-', ''), 
+			obj_posx = order[i].pos_x,
+			obj_posy = order[i].pos_y,
+			obj_ingredients = order[i].ingredients;
+
+		var outlet_div = '',
+			inlet_div = '',
+			addon_data = '',
+			target_data = '';
+
+		var final_val_outs = [];
+		var final_val_ins = [];
+		var ghost = '';
+		// ingrarraysedients 
+		
+		for(var z = 0; z < obj_ingredients.length; z++) {
+			var current_row = obj_ingredients[z];
+
+			//is there a link?
+			var link = current_row.link_details;
+			
+			// inlet or outlet
+			if(link){
+
+				var read_link = JSON.parse(decodeURIComponent(link));
+				var link_type = read_link['type'];
+				var linked_to = read_link['linked_to'];
+				var checkpoint_data = read_link['checkpoints'];
+				var final_destination = linked_to;
+				
+				
+				var inlet_data = $('#inlet_list_wrap .inlet[data-id="'+current_row.ingredient+'"]');
+				
+				var inlet_title = inlet_data.attr('data-title'),
+					inlet_unit = inlet_data.attr('data-unit'),
+					inlet_dia = inlet_data.attr('data-diameter');
+
+				//outlet, append to outlets
+				if(link_type == '1'){
+					
+					if(checkpoint_data && checkpoint_data !== ''){
+						
+						//build checkpoints
+						for(var c = 0; c < checkpoint_data.length; c++) {
+							var runner = 1+c;
+							
+							final_destination = read_link['fd'];
+							ghost += '<span data-id="'+obj_id+'-'+runner+'" data-id_full="gst-'+obj_id_full+'-'+runner+'" data-next_id="gst-'+obj_id_full+'-'+(runner-1)+'" data-left="'+checkpoint_data[c][0]+'" data-top="'+checkpoint_data[c][1]+'" data-sources="'+obj_id_full+','+final_destination+'"></span>';
+						}
+					}
+					
+					target_data += linked_to+',';
+					outlet_div += '<div data-inlet_id="'+current_row.ingredient+'" data-target="'+final_destination+'" data-amount="'+current_row.amount+'" data-zip="'+current_row.height+'" class="middle"><span></span></div>';
+
+					final_val_outs.push('["'+current_row.ingredient+'", "'+inlet_title+'", "'+inlet_unit+'", "'+current_row.amount+'", "'+final_destination+'", "'+current_row.height+'", "'+inlet_dia+'"]');
+
+				} else if(link_type == '2'){ // outlet 2, append to outlets
+	  
+					target_data += linked_to+',';
+					outlet_div += '<div data-inlet_id="'+current_row.ingredient+'" data-target="'+linked_to+'" data-amount="'+current_row.amount+'" data-zip="'+current_row.height+'" class="middle"><span></span></div>';
+					
+
+					final_val_outs.unshift('["'+current_row.ingredient+'", "'+inlet_title+'", "'+inlet_unit+'", "'+current_row.amount+'", "'+linked_to+'", "'+current_row.height+'", "'+inlet_dia+'"]');
+					
+					
+				} else if(link_type == '3'){ // inlet, append to inlets
+					
+					inlet_div += '<div data-inlet_id="'+current_row.ingredient+'" data-coming_from="'+linked_to+'" data-amount="'+current_row.amount+'" data-zip="'+current_row.height+'"></div>';
+				
+					final_val_ins += '<div data-going_to="'+linked_to+'">["'+current_row.ingredient+'", "'+inlet_title+'", "'+inlet_unit+'", "'+current_row.amount+'", "'+linked_to+'", "'+current_row.height+'", "'+inlet_dia+'"]</div>';
+		
+				} else if(link_type == '4' || link_type == '5'){ // inlet/outlet outside
+
+					addon_data += '<div class="extra_outlet" data-type="'+link_type+'" data-title="'+inlet_title+'" data-pos_y="'+JSON.parse(checkpoint_data)[0]+'" data-pos_x="'+JSON.parse(checkpoint_data)[1]+'" data-code="'+current_row.ingredient+'" data-amount="'+current_row.amount+'" data-height="'+current_row.height+'" data-angle="'+current_row.angle+'" data-drop="'+current_row.drop+'" data-id="'+current_row.id+'"></div>';
+
+				}
+
+			} else { // standard part, append to addons
+				
+				addon_data += '<div data-id="'+current_row.ingredient+'" data-code="'+encodeURIComponent(JSON.stringify({"code": current_row.ingredient, "amount": current_row.amount, "height": current_row.height, "angle": current_row.angle, "drop": current_row.drop, "id": current_row.id}))+'"></div>';
+
+			}
+
+		}
+
+			var new_card_info = ' data-type="'+obj_type+'"'+
+								' data-id="'+obj_id+'"'+
+								' data-id_full="'+obj_id_full+'"'+
+								' data-identifier="'+obj_wellgroup+'"'+
+								' data-order_identifier="'+order[i].id+'"'+
+								' data-title="'+obj_title+'"'+
+								' data-top_pin="'+order[i].height_ground+'"'+
+								' data-bottom_pin="'+order[i].height_water+'"'+
+								' data-chamber="0"'+
+								' data-target="'+target_data.replace(/,\s*$/, "")+'"'+
+								' data-angle="0"'+
+								' data-mapy="'+obj_posy+'"'+
+								' data-mapx="'+obj_posx+'"';
+
+			var new_card =  '<span '+new_card_info+' class="object" style="top:'+obj_posy+'%;left:'+obj_posx+'%;transform: scale('+scale_factor/zoomer+','+scale_factor/zoomer+')">'+
+			
+							'<span class="outlet_out">['+final_val_outs+']</span>'+
+							'<span class="outlet_in"></span>'+
+
+							'<div class="pre_inlet_placeholder">'+final_val_ins+'</div>'+
+							'<div class="ghost_placeholder">'+ghost+'</div>'+
+					
+							'<span class="outlet_wrap center">'+outlet_div+'</span>'+
+							'<span class="inlet_wrap">'+inlet_div+'</span>'+
+							'<span class="addons">'+addon_data+'</span>'+
+							'<a href="#" class="connect"><span class="connect_txt">Yhdistä</span><span class="disconnect_txt">Nollaa poistot</span></a>'+
+							'</span>';
+
+			$('#objects_wrap').append(new_card);
+
+		}
+
+		finalize_reload();
+
+	} 
+
+	catch(err) {
+		
+		$('#send_codes').remove();
+		alert('Ohjelma on havainnut virheitä kaivojen tiedoissa (kaivoja muokattu manuaalisesti CCS:n puolelta) ja estänyt uudelleenlatauksen lisävahinkojen välttämiseksi. Vältät tämän tilanteen muokkaamalla alunperin massoitustyökalun kautta tehdyt kaivot massoitustyökalun kautta');
+		
+	}
+
+}
+
+    function finalize_reload() {
+
+	let well_ids = [];
+
+        $('.object').each(function() {
+        
+        var current = $(this);
+		
+		well_ids.push(current.attr('data-identifier'));
+		
+            current.find('.pre_inlet_placeholder div').each(function() {
+            
+                var current_obj = $(this);
+                var current_html = current_obj.html()+',';
+                var appending_obj = current_obj.attr('data-going_to');
+                
+                $('.object[data-id_full="'+appending_obj+'"]').find('.outlet_in').append(current_html);
+            
+            });
+            
+            current.find('.pre_inlet_placeholder').remove();
+        
+        });
+        
+        $('.object').each(function() {
+        
+            var current = $(this);
+            var current_wrap = current.find('.outlet_in');
+            
+            var current_html = current_wrap.html();
+            var new_html = current_html.replace(/,\s*$/, "");
+                
+            current_wrap.html('['+new_html+']');
+            
+                current.find('.ghost_placeholder span').each(function(index) {
+            
+                    var cloned_parent = $(current.clone());
+                    
+                    var current_gst = $(this);
+                    var runner = index;
+                    
+                    var data_id = current_gst.attr('data-id'),
+                        data_id_full = current_gst.attr('data-id_full'),
+                        data_left = current_gst.attr('data-left'),
+                        data_top = current_gst.attr('data-top'),
+                        data_sources = current_gst.attr('data-sources').split(','),
+                        next_target = '';
+
+                    if(index == 0){
+                        next_target = data_sources[1];
+                    } else {
+                        next_target = current_gst.attr('data-next_id');
+                    }
+
+                    var new_bottom_pin = parseFloat(current.attr('data-bottom_pin')) - 0.02;
+                    
+                    
+                    cloned_parent.attr('data-id', data_id);
+                    cloned_parent.attr('data-id_full', data_id_full);
+                    cloned_parent.attr('data-sources', data_sources);
+                    cloned_parent.attr('data-target', next_target);
+                    cloned_parent.attr('data-bottom_pin', new_bottom_pin.toFixed(2));
+                    cloned_parent.css({"left": data_left+'%', "top": data_top+'%'});
+                    
+                    cloned_parent.addClass('ghost');
+                    
+                    $('#objects_wrap').append(cloned_parent);
+                    
+                });
+            
+            current.find('.ghost_placeholder').remove();
+            
+        });
+
+		setTimeout(function(){recalc();}, 500);
+        
+    }
   
 	$(document).on('click', '.connect span', function(e) {
     e.preventDefault();
@@ -309,7 +632,10 @@ instance.on('zoom', function(e) {
     }
     
     recalc();
-    create_menu_from_source($('.object.active'));
+	
+	setTimeout(function(){create_menu_from_source(active_wrap);}, 500);
+
+	
 	});
 
 
@@ -327,31 +653,99 @@ instance.on('zoom', function(e) {
 	}
 
 
+var pin_counter = 1;
+
 function recalc() {
   
   if(timestamp+10 > get_time()){
 
   } else {
 
+ try {
   measure_wrap.html('');
   $('.inlet_wrap').html('');
   $('.center').html('');
+  $('.pin').remove();
+  
+  pin_counter = 1;
   
   var dist;
     
   $('.object').each(function() {
-      
+	
   var object = $(this);
+
+	object.removeClass('notice2');
 
   var card_id_full = object.attr('data-id_full'),
       card_type = object.attr('data-type'),
       card_top_pin = object.attr('data-top_pin'),
       card_bottom_pin = object.attr('data-bottom_pin'),
       card_target = object.attr('data-target'),
-      card_outlet_data = object.attr('data-outlet_data'),
-      card_inlet_data = object.attr('data-inlet_data'),
-      own_mid = object.find('.center').offset();
-      
+      card_outlet_data = object.find('.outlet_out').text(),
+      card_inlet_data = object.find('.outlet_in').text(),
+      own_mid = object.find('.center').offset(),
+	  card_angle = parseFloat(object.attr('data-angle'));
+
+	var p2 = {
+		x: own_mid.top,
+		y: own_mid.left
+	};
+
+	if(object.find('.addons .extra_outlet').length !== 0){
+		
+		var extra_outlet = object.find('.addons .extra_outlet'),
+			extra_type = extra_outlet.attr('data-type');
+		
+
+		$('#objects_wrap').append('<span class="pin pin'+pin_counter+'" style="transform:scale('+scale_factor/zoomer+','+scale_factor/zoomer+');left:'+extra_outlet.attr('data-pos_x')+'%;top:'+extra_outlet.attr('data-pos_y')+'%;"></span>');
+		
+		var pin_offset = $('.pin'+pin_counter).offset();
+		
+        var px = {
+			x: pin_offset.top + 13,
+			y: pin_offset.left + 13
+        };
+		
+		var e_angle = Math.atan2(px.y - p2.y, px.x - p2.x) * 180 / Math.PI,
+			final_e_ang = parseInt((180-card_angle)+(e_angle*-1));
+
+        if(e_angle < 0){
+          e_angle = e_angle+360;
+          final_e_ang = 360-(360-final_e_ang);
+        } 
+
+        if(final_e_ang < 0 || final_e_ang == e_angle){
+          final_e_ang = final_e_ang+360;
+        }
+
+        if(final_e_ang == 540){
+          final_e_ang = 180;
+        }
+		
+        var ax = px.x - p2.x;
+        var bx = px.y - p2.y;
+
+        distx = Math.sqrt(ax*ax + bx*bx);
+		
+		object.find('.addons').attr('data-wrap_angle', (180 + e_angle*-1)).css({'transform': 'rotate('+(180 + e_angle*-1)+'deg)'});
+		object.find('.addons .extra_outlet').css({'height': (distx*scale_factor/2)*(zoomer)/(scale_factor*zoomer)-26+'px'});
+
+
+		var card_id = options.find('.object_card_wrap').attr('data-card_id');
+		
+		if(card_id == card_id_full){
+			if(extra_type == '5'){
+				object.find('.addons .extra_outlet').attr('data-angle', '0');
+				options.find('.extra_outlet').attr('data-angle', '0');
+				object.attr('data-angle', final_e_ang);
+			} else {
+				object.find('.addons .extra_outlet').attr('data-angle', final_e_ang);
+				options.find('.extra_outlet').attr('data-angle', final_e_ang);
+			}
+		}
+
+	}
 
     
     if (typeof card_outlet_data !== undefined && card_outlet_data.length > 0) {
@@ -363,7 +757,7 @@ function recalc() {
     }
     
     
-    var target_array = card_target.split(",").reverse();
+    var target_array = card_target.split(",");
     
       if(target_array !== ''){
 
@@ -383,17 +777,19 @@ function recalc() {
           y: target_mid.left
         };
 
-        var p2 = {
-          x: own_mid.top,
-          y: own_mid.left
-        };
-
         var a = p1.x - p2.x;
         var b = p1.y - p2.y;
 
         dist = Math.sqrt(a*a + b*b);
         var angleDeg = Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
         var target_ang = parseInt(target.attr('data-angle'));
+		
+		if(target.find('.addons .extra_outlet[data-type="5"]').length !== 0){
+			target_ang = parseInt(target.find('.addons').attr('data-wrap_angle'));
+			
+			if(target_ang < 0){target_ang = target_ang+360}
+		} 
+		
         var final_in = parseInt((180-target_ang)+(angleDeg*-1));
 
         if(angleDeg < 0){
@@ -409,10 +805,11 @@ function recalc() {
           final_in = 180;
         }    
 
+        if(target_array[i] == target_array[0]){
+            object.attr('data-angle', 360-angleDeg);    
+        }
 
-        object.attr('data-angle', 360-angleDeg);
-
-        var drop_per_meter = '0';
+        var drop_per_meter = 0;
         var inlet_build_info = 'data-inlet_id="ei valittu" data-amount="1" data-inlet_name="ei valittu" data-coming_from="'+card_id_full+'"';
         var outlet_build_info = 'data-inlet_id="ei valittu" data-amount="1"';
         var outlet_dia = 0;
@@ -428,15 +825,12 @@ function recalc() {
           
           if (card_inlet_data[i][0] !== 'null') {
             
-            //negative drop?
-            object.addClass('notice2');
-            
-            inlet_build_info = 'data-inlet_id="'+card_inlet_data[i][0]+'" data-inlet_name="'+card_inlet_data[i][1]+'" data-amount="'+card_inlet_data[i][3]+'" data-coming_from="'+card_inlet_data[i][4]+'"';
-            drop_per_meter = ((card_bottom_pin-target_bottom_pin)*100-parseInt(card_inlet_data[i][5]))/(dist*map_size);
-            
-            if(drop_per_meter > 0){
+            inlet_build_info = 'data-inlet_id="'+card_inlet_data[i][0]+'" data-inlet_name="'+card_inlet_data[i][1]+'" data-amount="'+card_inlet_data[i][3]+'" data-coming_from="'+card_id_full+'"';
+            drop_per_meter = ((parseFloat(card_bottom_pin)*100 + parseFloat(card_outlet_data[i][5])) - (parseFloat(target_bottom_pin)*100 + parseFloat(card_inlet_data[i][5])))/(dist*map_size);
+
+            if(drop_per_meter < 0){
               //negative drop = nope
-              object.removeClass('notice2'); 
+              object.addClass('notice2'); 
             }
 
           }
@@ -453,7 +847,7 @@ function recalc() {
             object.removeClass('notice');
             zip_height = card_inlet_data[i][5];
             outlet_build_info = 'data-outlet_id="'+card_outlet_data[i][0]+'" data-amount="'+card_outlet_data[i][3]+'"';
-            outlet_dia = card_outlet_data[i][5];
+            outlet_dia = card_outlet_data[i][6];
 
           }
         }
@@ -464,7 +858,7 @@ function recalc() {
 
 
         var middle_build = $('<div '+outlet_build_info+' data-drop="'+drop_per_meter+'" data-target="'+target_array[i]+'" data-point_dir="'+(360-angleDeg)+'" class="middle" style="transform:rotate('+(360-angleDeg)+'deg);"><span data-dia="'+outlet_dia+'" data-com="'+final_in+'" style="height:'+(dist-100*scale_factor/2)*(zoomer)/(scale_factor*zoomer)+'px;"></span></div>');
-        object.find('.outlet_wrap').prepend(middle_build);
+        object.find('.outlet_wrap').append(middle_build);
 
 
           var multi = multiplier_val/100+1;
@@ -485,10 +879,18 @@ function recalc() {
 
       }
       
+	pin_counter++;
+	
   });
 
     calc_objs();
     set_time();
+  }
+  
+  catch(err){
+	  console.log(err);
+  }
+  
   }
 }
 
@@ -516,7 +918,7 @@ function recalc() {
         
         find_type.find('.obj_avg').text(parseFloat(new_total/new_count).toFixed(2));
     } else {
-        count_wrap.append('<div class="obj_counter" data-count="1" data-title="'+obj_title+'">yht: <span class="obj_total">'+obj_height.toFixed(2)+'</span> m, avg: <span class="obj_avg"></span> m</div>');               
+        count_wrap.append('<div class="obj_counter" data-count="1" data-title="'+obj_title+'">yht: <span class="obj_total">'+obj_height.toFixed(2)+'</span> m, keskiarvo: <span class="obj_avg"></span> m</div>');               
     }
 
   });
@@ -531,19 +933,26 @@ function recalc() {
   
 	$(document).on('contextmenu', '.object', function(e){
     
+	var clicked_obj = $(this);
     
     if($('.obj_eraser').hasClass('active')){
-       delete_obj($(this));
+       delete_obj(clicked_obj);
     } else {
 
-      body.addClass('view_options');
+		body.removeClass('prevent_outs').addClass('view_options');
       
       $('.object').removeClass('active');
-      $(this).addClass('active');
-      create_menu_from_source($(this));
+      clicked_obj.addClass('active');
+	  
+		if(clicked_obj.find('.extra_outlet[data-type="5"]').length !== 0){
+			body.addClass('prevent_outs');
+		}
+
+      create_menu_from_source(clicked_obj);
     }
-                 
-    return false;
+
+		return false;
+
 	});
 
 
@@ -558,25 +967,6 @@ function recalc() {
     target_obj.addClass('active');
     create_menu_from_source(target_obj);
   });
-
-
-  
-
-
-
-var removeValue = function(list, value, separator) {
-  separator = separator || ",";
-  var values = list.split(separator);
-  for(var i = 0 ; i < values.length ; i++) {
-    if(values[i] == value) {
-      values.splice(i, 1);
-      return values.join(separator);
-    }
-  }
-  return list;
-}
-
-
 
 
 function delete_obj(obj) {
@@ -596,7 +986,6 @@ function delete_obj(obj) {
       
     });
 
-    
     $('.object.ghost[data-sources*="'+del_id+'"]').find('.inlet_wrap div').each(function() {
       
       var coming_from = $(this).attr('data-coming_from');
@@ -613,6 +1002,7 @@ function delete_obj(obj) {
     
     close_options();
     recalc();
+
 }
 
 
@@ -623,8 +1013,8 @@ function delete_obj(obj) {
   });
 
   function close_options() {
-    body.removeClass('view_options');
-    
+    body.removeClass('view_options prevent_outs');
+
     if(!$('.obj_eraser').hasClass('active')){body.removeClass('message').attr('data-message', '')}
 
   }
@@ -658,146 +1048,123 @@ function showPage(page_no) {
 	__CURRENT_PAGE = page_no;
 
 	__PDF_DOC.getPage(page_no).then(function(page) {
-    orig_size = page.getViewport(1,image_rotation);
-    
-    var five_k_scale_H = 5000 / orig_size.height;
-    var five_k_scale_W = 5000 / orig_size.width;
-    var multiplier = 2;
-    
-    if(five_k_scale_H < five_k_scale_W){
-        multiplier = five_k_scale_H; 
-    } else {
-        multiplier = five_k_scale_W; 
-    }
-    
-    __CANVAS.width = orig_size.width*multiplier;
-    __CANVAS.height = orig_size.height*multiplier;
-    
-    
-    var scale_required = __CANVAS.width / orig_size.width;
-    var viewport = page.getViewport(scale_required);
-    
+		orig_size = page.getViewport(1,image_rotation);
+		
+		var five_k_scale_H = 5000 / orig_size.height;
+		var five_k_scale_W = 5000 / orig_size.width;
+		var multiplier = 2;
+		
+		if(five_k_scale_H < five_k_scale_W){
+			multiplier = five_k_scale_H; 
+		} else {
+			multiplier = five_k_scale_W; 
+		}
+		
+		__CANVAS.width = orig_size.width*multiplier;
+		__CANVAS.height = orig_size.height*multiplier;
+		
+		
+		var scale_required = __CANVAS.width / orig_size.width;
+		var viewport = page.getViewport(scale_required, image_rotation);
+		
 
-    map_irl_width = ((orig_size.width / 72 * 2.54 * map_scale.val()) / 100),
-    map_irl_height = ((orig_size.height / 72 * 2.54 * map_scale.val()) / 100);
-    
-    map_scale.attr('data-irl_width', (orig_size.width / 72 * 2.54));
-    
-    var renderContext = {
-      canvasContext: __CANVAS_CTX,
-      viewport: viewport
-    };
+		map_irl_width = ((orig_size.width / 72 * 2.54 * map_scale.val()) / 100),
+		map_irl_height = ((orig_size.height / 72 * 2.54 * map_scale.val()) / 100);
+		
+		map_scale.attr('data-irl_width', (orig_size.width / 72 * 2.54));
+		
+		var renderContext = {
+		  canvasContext: __CANVAS_CTX,
+		  viewport: viewport
+		};
 
-    page.render(renderContext).then(function() {
-      __PAGE_RENDERING_IN_PROGRESS = 0;
-      
-      var pdf_image = __CANVAS.toDataURL('image/webp', 1.0);
+		page.render(renderContext).then(function() {
+		  __PAGE_RENDERING_IN_PROGRESS = 0;
+		  
+		  var pdf_image = __CANVAS.toDataURL('image/webp', 1.0);
 
-      $(".pdf_image").attr('src', pdf_image);
-      spinner.removeClass('active');
-      recalc_distances();
-      
-    });
+		  $(".pdf_image").attr('src', pdf_image);
+		  spinner.removeClass('active');
+		  recalc_distances();
+		  
+		});
 	});
 }
 
+	var reload_times = 0;
+	var z_plan = '';
+	$("#acceptUploadZoningPlan").on('click', function() {
+		upload_pdf();
+	});
 
-
-
-
-$("#button_wrap").prepend('<input id="user_o" type="text" name="user"><input id="pass_o" type="password" name="pass"><a href="#" id="login_o">alusta</a>');
-
-var username = 'username';
-var password = 'password';
-var helper = null;
-var api;
-var wor = $('#content').attr('data-wellorder-reference');
-
-  $(document).on('click', '#login_o', function(e) {
-    e.preventDefault();
-
-    username = $("#user_o").val();
-    password = $("#pass_o").val();
+	function upload_pdf(){
+		
+		spinner.addClass('active');
+		
+		api.wellorder_reference(
+			wor,
+			function(o) {
+				z_plan = o.zoning_plan;
+				
+				if(z_plan !== ''){
+					showPDF(z_plan);
+				} else if(reload_times <= 4){
+					reload_times++;
+					setTimeout(function(){upload_pdf();}, 3000);
+					spinner.removeClass('active');
+				} else {
+					reload_times = 0;
+					spinner.removeClass('active');
+				}
+				
+			}, function(o) {
+				console.log('Failure');
+				spinner.removeClass('active');
+			}
+		);
+		
+	}
+	
+	
+	$(document).on('click', '.rot_pdf_left, .rot_pdf_right', function(e) {
+		e.preventDefault();
+		var clicked = $(this);
     
-    api = ZoningData();
-    
-    api.authorize(function() {
-      return btoa(username + ":" + password);
-    });
-    
-  api.categories(function(o) {
-      console.log(o);
-      helper = api.category_helper(o.categories);
-  }, function(o) {
-      console.log('Failure');
-      console.log(o);
-  });
-  
-  api.wellgroups(function(o) {
-
-        var tags = '';
-    
-        o.sort((a, b) => a.name.localeCompare(b.name))
-    
-        $.each(o, function(i, item) {
-            tags += '<a href="#" class="tag" data-type="'+o[i].product_family+'" data-factory="'+o[i].factory+'" data-identifier="'+o[i].identifier+'">'+o[i].name+'</a>';
-        });
-    
-        $('#menu_items').append(tags);
-    
-      }, function(o) {
-          console.log('Failure');
-      });
-      
-    api.wellorder_reference(
-        wor,
-        function(o) {
-            console.log(o);
-            var zoning_data = o.zoning_plan;
-            if(o.wellorders.length > 0){reload_order(o.wellorders);}
-            if(zoning_data.length > 0){showPDF(zoning_data);}
-        }, function(o) {
-              console.log('Failure');
-              console.log(o);
-        }
-      );
-      
-  });
-
-
-$("#acceptUploadZoningPlan").on('click', function() {
-  var wor = $('#content').attr('data-wellorder-reference');
-  var has_plan = $('#upload_results_single').find('a');
-  
-  if(has_plan){
-    api.wellorder_reference(
-        wor,
-        function(o) {
-            console.log(o);
-            showPDF(o.zoning_plan);
-        }, function(o) {
-            console.log('Failure');
-            console.log(o);
-        }
-    );
-  }
-  
-
-});
-
+		if(z_plan !== ''){		
+				
+			if(clicked.is('.rot_pdf_left')){
+			  image_rotation = image_rotation - 90;
+			} else if(clicked.is('.rot_pdf_right')){ 
+			  image_rotation = image_rotation + 90;
+			}
+			
+			showPDF(z_plan);
+		
+		} else {
+			alert('Aluekaava puuttuu!');
+		}
+		
+	});
+	
 
   $(document).on('click', '.tag', function(e) {
     e.preventDefault();
 
-  var new_obj = $(this),
-      new_obj_identifier = new_obj.attr('data-identifier'),
-      new_obj_type = new_obj.attr('data-type'),
-      new_obj_factory = new_obj.attr('data-factory'),
-      new_obj_title = new_obj.text();
+    var new_obj = $(this);
     
-      $('.tag').removeClass('active');
-      
-      new_obj.addClass('active');
+		if(new_obj.hasClass('active')){
+			$('.tag').removeClass('active');
+			body.removeClass('message').attr('data-message', '');
+		} else {
+			$('.tag').removeClass('active');
+			new_obj.addClass('active');
+			var new_msg = new_obj.attr('data-warning_msg');
+			if(new_msg){
+				body.addClass('message').attr('data-message', new_msg);
+			}
+			
+		}
+
   });
 
 
@@ -812,15 +1179,21 @@ $("#acceptUploadZoningPlan").on('click', function() {
       remember_top = (e.pageY - posY)/zoomer;
       remember_left = (e.pageX - posX)/zoomer;
     
-  var map_tp = (remember_top-13)/(middle_point.position().top*2/zoomer)*100,
-      map_lp = (remember_left-13)/(middle_point.position().left*2/zoomer)*100;
+	var pin_offset = 13;
+	
+	if(new_obj.hasClass('outsider_marker')){
+		pin_offset = 9;
+	}
+  var map_tp = (remember_top-pin_offset)/(middle_point.position().top*2/zoomer)*100,
+      map_lp = (remember_left-pin_offset)/(middle_point.position().left*2/zoomer)*100;
 
       obj_id++;
+	
+	var dummy_id = 'x'+obj_id;
 
-    
-  if(new_obj.length > 0 && !new_obj.hasClass('obj_eraser')){
-    
-    
+
+  if(new_obj.length > 0 && !new_obj.hasClass('obj_eraser') && !new_obj.hasClass('outsider_marker')){
+
     if(new_obj.parents('#options').length > 0){
  
       var cloned_card = $('.object.active'),
@@ -852,7 +1225,10 @@ $("#acceptUploadZoningPlan").on('click', function() {
 
       } else {
         //regular clone, fix dup data
-        cloned_card_html.removeClass('active').attr('data-id_full', cloned_card_type+'-'+obj_id).attr('data-id', obj_id).attr('data-inlet_data', '').attr('data-target', '').attr('data-outlet_data', '').css({'top': map_tp+'%', 'left': map_lp+'%', 'transform': 'scale('+scale_factor/zoomer+','+scale_factor/zoomer+')'});
+        cloned_card_html.removeClass('active').attr('data-id_full', cloned_card_type+'-y'+dummy_id).attr('data-id', 'y'+dummy_id).attr('data-inlet_data', '').attr('data-target', '').attr('data-outlet_data', '').css({'top': map_tp+'%', 'left': map_lp+'%', 'transform': 'scale('+scale_factor/zoomer+','+scale_factor/zoomer+')'});
+        cloned_card_html.find('.outlet_out').text('');
+        cloned_card_html.find('.outlet_in').text('');
+		cloned_card_html.find('.extra_outlet').remove();
       }
 
       $('#objects_wrap').append(cloned_card_html);
@@ -864,13 +1240,13 @@ $("#acceptUploadZoningPlan").on('click', function() {
     var new_obj_identifier = new_obj.attr('data-identifier'),
         new_obj_type = new_obj.attr('data-type').toUpperCase(),
         new_obj_title = new_obj.text(),
-        already_found = $('.object[data-id_full*="'+new_obj_type+'-'+obj_id+'"]'),
-        new_class = new_obj_type+'-'+obj_id,
-        new_id = obj_id;
+        already_found = $('.object[data-id_full="'+new_obj_type+'-'+dummy_id+'"]'),
+        new_class = new_obj_type+'-'+dummy_id,
+        new_id = dummy_id;
           
     if(already_found.length){
-        new_class = new_obj_type+'-'+obj_id+'_'+obj_id;
-        new_id = obj_id+'_'+obj_id;
+        new_class = new_obj_type+'-'+dummy_id+'_'+dummy_id;
+        new_id = dummy_id+'_'+dummy_id;
     }
 
     var new_card_info = ' data-type="'+new_obj_type+'"'+
@@ -884,19 +1260,17 @@ $("#acceptUploadZoningPlan").on('click', function() {
                         ' data-chamber="0"'+
                         ' data-target=""'+ 
                         ' data-angle="0"'+
-                        ' data-outlet_data=\'\''+
-                        ' data-inlet_data=\'\''+
                         ' data-mapy="'+map_tp+'"'+
                         ' data-mapx="'+map_lp+'"';
     
 
     var new_card =  '<span '+new_card_info+' class="object fresh_card" style="top:'+map_tp+'%;left:'+map_lp+'%;transform: scale('+scale_factor/zoomer+','+scale_factor/zoomer+')">'+
+                    '<span class="outlet_out"></span>'+
+                    '<span class="outlet_in"></span>'+
                     '<span class="outlet_wrap center"></span>'+
                     '<span class="inlet_wrap"></span>'+
-                    '<span class="addons">'+
-
-                    '</span>'+
-                    '<a href="#" class="connect"><span class="connect_txt">Yhdistä</span><span class="disconnect_txt">Nollaa poistot</span></a>'+
+                    '<span class="addons"></span>'+
+                    '<a href="#" class="connect"><span class="connect_txt">Yhdistä</span><span class="disconnect_txt">Nollaa pääpoistot</span></a>'+
                     '</span>';
 
         $('#objects_wrap').append(new_card);
@@ -905,7 +1279,20 @@ $("#acceptUploadZoningPlan").on('click', function() {
   
         } 
       } else {
-        body.addClass('message').attr('data-message', 'Valitse ensin objekti jonka haluat lisätä!');
+
+		if(new_obj.hasClass('outsider_marker')){
+			$('.add_outsider_obj').attr('data-dl', map_lp).attr('data-dt', map_tp).show();
+			
+			$('.object.active').find('.extra_outlet').attr('data-pos_y', map_tp).attr('data-pos_x', map_lp);
+			recalc();
+			
+        setTimeout(function(){recalc();}, 500);
+			
+        } else if(new_obj.hasClass('obj_eraser')){
+            body.addClass('message').attr('data-message', 'Valitse ensin objekti jonka haluat poistaa!');
+        } else {
+            body.addClass('message').attr('data-message', 'Valitse ensin objekti jonka haluat lisätä!');  
+        }
         
         setTimeout(function(){
           body.removeClass('message').attr('data-message', '');
@@ -917,86 +1304,89 @@ $("#acceptUploadZoningPlan").on('click', function() {
 
 	});
 
+// outsider object
+
+	$(document).on('click', '.add_outside_connection', function(e) {
+		e.preventDefault();
+		inlet_from_outside_menu($('.outsider_inlet').attr('data-card_id'));
+	});
+  
+	function inlet_from_outside_menu(chamber_code) {
 
 
-    function reload_order(order_json) {
-
-        var order = order_json;
-        
-        for (i = 0; i < order.length; i++) {
-            
-        /*
-        
-        
-    amount: 1
-    height_ground: 12.5
-    height_water: 11.4
-    id: 3395
-    identifier: "SVK-3"
-    0: {id: 32964, amount: 1, ingredient: "70002844", height: 0, angle: 0, …}
-    1: {id: 32965, amount: 1, ingredient: "70002007", height: 0, angle: 0, …}
-    2: {id: 32966, amount: 1, ingredient: "923100248-1", height: 1, angle: 257, …}
-    3: {id: 32967, amount: 50.6, ingredient: "70000687", height: 0, angle: 0, …}
-    4: {id: 32968, amount: 1, ingredient: "923100213", height: 0, angle: 0, …}
-    5: {id: 32969, amount: 1, ingredient: "923100155", height: 0, angle: 0, …}
-    6: {id: 32970, amount: 1, ingredient: "70002836", height: 0, angle: 0, …}
-    pos_x: 53.1101
-    pos_y: 52.2207
-    wellgroup: "70000977"
-     
-*/
-
-    var obj_id_full = order[i].identifier,
-        obj_type = obj_id_full.split('-')[0];
-        obj_id = obj_id_full.match(/\d/g),
-        obj_wellgroup = order[i].wellgroup,
-        obj_title = $('.tag[data-identifier="'+obj_wellgroup+'"]').text(),
-        obj_posx = order[i].pos_x,
-        obj_posy = order[i].pos_y;
-        
-        var new_card_info = ' data-type="'+obj_type+'"'+
-                            ' data-id="'+obj_id+'"'+
-                            ' data-id_full="'+obj_id_full+'"'+
-                            ' data-identifier="'+obj_wellgroup+'"'+
-                            ' data-order_identifier="'+order[i].id+'"'+
-                            ' data-title="'+obj_title+'"'+
-                            ' data-top_pin="'+order[i].height_ground+'"'+
-                            ' data-bottom_pin="'+order[i].height_water+'"'+
-                            
-                            ' data-chamber="0"'+
-                            ' data-target=""'+
-                            ' data-angle="0"'+
-                            ' data-outlet_data=\'\''+
-                            ' data-inlet_data=\'\''+
-                            ' data-mapy="'+obj_posy+'"'+
-                            ' data-mapx="'+obj_posx+'"';
-        
-    
-        var new_card =  '<span '+new_card_info+' class="object" style="top:'+obj_posy+'%;left:'+obj_posx+'%;transform: scale('+scale_factor/zoomer+','+scale_factor/zoomer+')">'+
-                        '<span class="outlet_wrap center"></span>'+
-                        '<span class="inlet_wrap"></span>'+
-                        '<span class="addons">'+
-    
-                        '</span>'+
-                        '<a href="#" class="connect"><span class="connect_txt">Yhdistä</span><span class="disconnect_txt">Nollaa poistot</span></a>'+
-                        '</span>';
-    
-        $('#objects_wrap').append(new_card);
-            
-        
-    
-        }
-        
-        
-        recalc();
-
-    }
+		var chamber_id = chamber_code;
+		var available_inlets_extra = helper.category_and_children(helper.find_category_by_path(['yhde', 'tulo_tai_poisto'])), inlets = '';
 
 
+		api.wellingredients(
+			chamber_id,
+			function(o) {
+				var inlets_extra_json = helper.filter_ingredients_by_categories(o, available_inlets_extra);
+				
+				$.each(inlets_extra_json, function(i, item) {
+					inlets += '<option value="'+inlets_extra_json[i].code+'" data-necessity="'+inlets_extra_json[i].necessity+'" data-outlet_diameter="'+inlets_extra_json[i].diameter+'" data-outlet_amount="'+inlets_extra_json[i].amount+'" data-outlet_unit="'+inlets_extra_json[i].unit+'">'+inlets_extra_json[i].name.toUpperCase()+'</option>';
+				});
 
+			var extra_type5 = '';
+			
+				if(options.find('.outlet_options').length == 0){
+					extra_type5 = '<label><input type="radio" name="inlet_type" value="5">Poisto</label>';
+				}
+				
+			 var outsider_content = '<div class="details_title">Yhde: </div>'+
+									'<select name="outsider_obj">'+
+										inlets+
+									'</select>'+
+									'<div><div class="details_title">V.juoksusta: </div><input type="number" name="outsider_height" value="0"></div>'+
+									'<div><label><input type="radio" name="inlet_type" value="4" checked>Tulo</label>'+extra_type5+'</div>'+
+									'<a class="tag outsider_marker" data-warning_msg="Klikkaa kartalta ulkopuolisen yhteen kohde!" href="#">Merkitse ulkopuolisen yhteen kohde</a>'+
+									'<a style="display:none;" class="btn add_outsider_obj" href="#">Lisää tästä</a>';
 
+				$('.outsider_object').html(outsider_content);
 
+			}
+		);
 
+	}
+
+	$(document).on('click', '.add_outsider_obj', function(e) {
+		e.preventDefault();
+
+		var o_code = $('[name="outsider_obj"]').val(),
+			o_amount = $('[name="outsider_obj"] option:selected').attr('data-outlet_amount'),
+			o_title = $('[name="outsider_obj"] option:selected').text(),
+			o_height = $('[name="outsider_height"]').val(),
+			o_type = $('[name="inlet_type"]:checked').val(),
+			o_angle = 0,
+			o_drop = 0,
+			o_pos_l = $('.add_outsider_obj').attr('data-dl'),
+			o_pos_t = $('.add_outsider_obj').attr('data-dt');
+
+		var extra_obj = '<div class="extra_outlet" data-type="'+o_type+'" data-title="'+o_title+'" data-pos_y="'+o_pos_t+'" data-pos_x="'+o_pos_l+'" data-code="'+o_code+'" data-amount="'+o_amount+'" data-height="'+o_height+'" data-angle="'+o_angle+'" data-drop="'+o_drop+'"></div>';
+		
+		$('.outsider_object').html('<div class="extra_outlet_wrap">'+extra_obj+'</div><a class="tag outsider_marker" data-warning_msg="Klikkaa kartalta ulkopuolisen yhteen kohde!" href="#">Muuta ulkopuolisen yhteen kohdetta</a><a href="#" class="btn remove_outsider_obj">Poista yhde</a>');
+		$('.object.active').find('.addons').append(extra_obj).attr('data-wrap_angle', '0');
+		
+		if(o_type == 5){
+			body.addClass('prevent_outs');
+		}
+		
+		recalc();
+		setTimeout(function(){recalc();}, 500);
+
+	});
+
+	$(document).on('click', '.remove_outsider_obj', function(e) {
+		e.preventDefault();
+		$('.outsider_object').html('<a href="#" class="btn add_outside_connection">Lisää ulkopuolinen yhde</a>');
+		$('.object.active').find('.addons .extra_outlet').remove();
+		
+		body.removeClass('prevent_outs');
+		
+		recalc();
+		setTimeout(function(){recalc();}, 500);
+		
+	});
 
 
 function create_menu_from_source(current) {
@@ -1012,8 +1402,8 @@ function create_menu_from_source(current) {
         card_top_pin = card.attr('data-top_pin'),
         card_bottom_pin = card.attr('data-bottom_pin'),
         card_chamber = card.attr('data-chamber'),
-        card_outlet_data = card.attr('data-outlet_data'),
-        card_inlet_data = card.attr('data-inlet_data'),
+        card_outlet_data = card.find('.outlet_out').text(),
+        card_inlet_data = card.find('.outlet_in').text(),
         card_target = card.attr('data-target');
 
   
@@ -1029,21 +1419,24 @@ function create_menu_from_source(current) {
   
   var target_array = card_target.split(",");
 
-  var create_card = $('<div class="object_card_wrap" data-card_type="'+card_type+'">'+
+  var create_card = $('<div class="object_card_wrap" data-card_type="'+card_type+'" data-card_id="'+card_id_full+'">'+
                 '<div class="card_title">'+card_title+'</div>'+ 
                 '<a href="#" data-warning_msg="Huom. Olet kopioimassa nykyistä korttia!" class="tag">Valitse kortti kopioitavaksi</a>'+
                 '<div class="details">'+
-                '<div class="detail_1"><label>kaivonumero/id:</label><input data-source="'+card_id_full+'" data-card_type="'+card_type+'" data-prev_val="'+card_id+'" class="details_id" type="text" name="kid" value="'+card_id+'"></div>'+
-                '<div class="detail_4"><label>&#8593; maanpinta:</label><input class="num_field details_upper_m" type="text" name="upper" autocomplete="off" value="'+card_top_pin+'"></div>'+
-                '<div class="detail_5"><label>&#8595; v.juoksu:</label><input class="num_field details_lower_m" type="text" name="lower" autocomplete="off" value="'+card_bottom_pin+'"></div>'+
+                '<div class="detail_1"><div class="details_title">kaivonumero/id:</div><input data-source="'+card_id_full+'" data-card_type="'+card_type+'" class="details_id" type="text" name="kid" autocomplete="off" value="'+card_id+'"></div>'+
+                '<div class="detail_4"><div class="details_title">&#8593; maanpinta:</div><input class="details_upper_m" type="number" name="upper" autocomplete="off" value="'+card_top_pin+'"></div>'+
+                '<div class="detail_5"><div class="details_title">&#8595; v.juoksu:</div><input class="details_lower_m" type="number" name="lower" autocomplete="off" value="'+card_bottom_pin+'"></div>'+
                       
-                '<div class="detail_6"><label>sakkapesä:</label><input class="num_field details_chamber" type="text" name="chamber" autocomplete="off" value="'+card_chamber+'"><span>cm</span></div>'+
+                '<div class="detail_6"><div class="details_title">sakkapesä:</div><input class="details_chamber" type="number" name="chamber" autocomplete="off" value="'+card_chamber+'"><span>cm</span></div>'+
 
                 '<div class="inlet_outlet_placeholder"></div>'+
                   
-                      
-                '<div class="multi_selector_wrap"></div>'+      
- 
+
+                '<div class="multi_selector_wrap"></div>'+
+				
+
+				'<div class="outsider_inlet" data-card_id="'+card_identifier+'"><div class="details_title">Ulkopuolinen yhde:</div><div class="outsider_object"></div></div>'+
+				
                 '<div class="total_inlets"></div>'+
                     
                 '<a href="#" class="btn delete_object">Poista objekti</a>'+
@@ -1115,7 +1508,6 @@ function create_menu_from_source(current) {
                   kansi_opt += '<label><input type="checkbox" data-necessity="'+kansi_json[i].necessity+'" data-id="'+kansi_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+kansi_json[i].unit+'">'+kansi_json[i].name+'</label>';
               });
             
-            
               //runko loop
               $.each(runkoputki_jenga_json, function(i, item) {
                   var json_val = encodeURIComponent(JSON.stringify({"code": runkoputki_jenga_json[i].code, "amount": runkoputki_jenga_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
@@ -1166,58 +1558,48 @@ function create_menu_from_source(current) {
                   var json_val = encodeURIComponent(JSON.stringify({"code": lisavaruste_json[i].code, "amount": lisavaruste_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
                   lisavaruste_opt += '<label><input type="checkbox" data-necessity="'+lisavaruste_json[i].necessity+'" data-id="'+lisavaruste_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+lisavaruste_json[i].unit+'">'+lisavaruste_json[i].name+'</label>';
               });
-            
-            
-            
 
               $.each(outlets_json, function(i, item) {
-                  outlets += '<option value="'+outlets_json[i].code+'" data-necessity="'+outlets_json[i].necessity+'" data-outlet_diameter="'+outlets_json[i].diameter+'" data-outlet_amount="'+outlets_json[i].amount+'" data-outlet_unit="'+outlets_json[i].unit+'">'+outlets_json[i].name.toUpperCase()+'</option>';
+                  outlets += '<option class="primary" value="'+outlets_json[i].code+'" data-necessity="'+outlets_json[i].necessity+'" data-outlet_diameter="'+outlets_json[i].diameter+'" data-outlet_amount="'+outlets_json[i].amount+'" data-outlet_unit="'+outlets_json[i].unit+'">'+outlets_json[i].name.toUpperCase()+'</option>';
               });
             
               $.each(outlets_extra_json, function(i, item) {
                   outlets += '<option value="'+outlets_extra_json[i].code+'" data-necessity="'+outlets_extra_json[i].necessity+'" data-outlet_diameter="'+outlets_extra_json[i].diameter+'" data-outlet_amount="'+outlets_extra_json[i].amount+'" data-outlet_unit="'+outlets_extra_json[i].unit+'">'+outlets_extra_json[i].name.toUpperCase()+'</option>';
               });
+  
+    if(sakka_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Sakkapesä:</span></div>'+sakka_opt+'</div>');}
+    if(teleskooppi_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Teleskooppi:</span></div>'+teleskooppi_opt+'</div>');}
+    if(kansi_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Kansi/yläosa:</span></div>'+kansi_opt+'</div>');} 
+    if(runkoputki_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="radio_wrap"><div class="details_title"><span>Runko/nousuputki:</span></div>'+runkoputki_opt+'</div>');} 
+    if(rungon_osat_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Rungon osat:</span></div>'+rungon_osat_opt+'</div>');} 
+    if(venttiili_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Vesilukko:</span></div>'+venttiili_opt+'</div>');}
+    if(pohja_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Pohja:</span></div>'+pohja_opt+'</div>');}
+    if(lisavaruste_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Lisävarusteet:</span></div>'+lisavaruste_opt+'</div>');}
 
-            
-  if(sakka_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Sakkapesä:</span></div>'+sakka_opt+'</div>');}
-  if(teleskooppi_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Teleskooppi:</span></div>'+teleskooppi_opt+'</div>');}
-  if(kansi_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Kansi/yläosa:</span></div>'+kansi_opt+'</div>');} 
-            
-  if(runkoputki_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="radio_wrap"><div class="details_title"><span>Runko/nousuputki:</span></div>'+runkoputki_opt+'</div>');} 
-            
-  if(rungon_osat_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Rungon osat:</span></div>'+rungon_osat_opt+'</div>');} 
-            
-  if(venttiili_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Vesilukko:</span></div>'+venttiili_opt+'</div>');}
-  if(pohja_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Pohja:</span></div>'+pohja_opt+'</div>');}
-  if(lisavaruste_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Lisävarusteet:</span></div>'+lisavaruste_opt+'</div>');}
+	if(sakka_json.length == 0){options.find('.detail_6').hide();}
 
-            
-            
-  if(card.hasClass('fresh_card')){
+// if new card, use default values
+    if(card.hasClass('fresh_card')){
+        var orig_frame = card.find('.original_frame').attr('data-id');
     
-    var orig_frame = card.find('.original_frame').attr('data-id');
+        options.find('.radio_wrap [data-id="'+orig_frame+'"]').prop('checked',true);
+        options.find('.multi_selector_wrap').each(function() {
     
-    options.find('.radio_wrap [data-id="'+orig_frame+'"]').prop('checked',true);
-    
-    options.find('.multi_selector_wrap').each(function() {
-    
-      $('input:checkbox[data-necessity="default"]').each(function() {
-        var current_input = $(this)
-        current_input.prop('checked',true);
-        menu_to_source($('.object.active'));
-        recalc();
-      });
+            $('input:checkbox[data-necessity="default"]').each(function() {
+                var current_input = $(this)
+                current_input.prop('checked',true);
+                menu_to_source($('.object.active'));
+                recalc();
+            });
 
-    });
+        });
     
-    card.removeClass('fresh_card');
-  }
+        card.removeClass('fresh_card');
+    }
   
 
   if (card_target.length > 0) {
 
-    
-  
   $.each(target_array,function(i){
     
     
@@ -1236,39 +1618,45 @@ function create_menu_from_source(current) {
                       '<div><div class="details_title"><span>V.juoksusta:</span></div><input class="num_field details_out_height" type="text" name="oheight" value="0" disabled><span>cm</span></div>'+
                       checkpoint+
                       '</div>');
-    
-  if (card_outlet_data.length > 0 && card_outlet_data[i] !== undefined) {
-    if (card_outlet_data[i][0] !== 'null') {
-      outlet_option.find('.details_outlet option').removeAttr('selected');
-      outlet_option.find('.details_outlet option[value="'+card_outlet_data[i][0]+'"]').attr('selected','selected').prop('selected',true);
-      outlet_option.find('.outlet_unit').text(card_outlet_data[i][2]);
-      outlet_option.find('.details_outlet_len').val(card_outlet_data[i][3]);
-      
-      outlet_option.find('.create_checkpoint').removeClass('inactive');
 
+    if (i >= 1) {
+        outlet_option.find('.details_outlet option.primary').remove();
+		outlet_option.find('.details_out_height').removeAttr('disabled');
     }
-  }
-
-  options.find('.inlet_outlet_placeholder').append(outlet_option);
-  
-  if(card_target.split(',').length > 1){
-      options.find('.create_checkpoint').remove();
-  }
     
-  //valmius tupla poistoon, if i > 1 details_out_height disabled false, outlets lista -> tulo_ja_poisto
+    if (card_outlet_data.length > 0 && card_outlet_data[i] !== undefined) {
+        if (card_outlet_data[i][0] !== 'null') {
+            outlet_option.find('.details_outlet option').removeAttr('selected');
+            outlet_option.find('.details_outlet option[value="'+card_outlet_data[i][0]+'"]').attr('selected','selected').prop('selected',true);
+            outlet_option.find('.outlet_unit').text(card_outlet_data[i][2]);
+            outlet_option.find('.details_outlet_len').val(card_outlet_data[i][3]);
+            outlet_option.find('.create_checkpoint').removeClass('inactive');
+        }
+    }
+
+    options.find('.inlet_outlet_placeholder').append(outlet_option);
+  
+    if(card_target.split(',').length > 1){
+        options.find('.create_checkpoint').remove();
+	}
 
   }); 
   }
-            
 
-  card.find('.addons div').each(function() {
-  var addon = $(this),
-      addon_id = addon.attr('data-id');
-      options.find('[data-id="'+addon_id+'"]').prop('checked',true);
-  });
-
+	card.find('.addons div').not('.extra_outlet').each(function() {
+		var addon = $(this),
+		addon_id = addon.attr('data-id');
+		options.find('[data-id="'+addon_id+'"]').prop('checked',true);
+	});
   
+	if(card.find('.addons .extra_outlet').length !== 0){
+		$('.outsider_object').html('<div class="extra_outlet_wrap">' + card.find('.addons .extra_outlet')[0].outerHTML + '</div><a class="tag outsider_marker" data-warning_msg="Klikkaa kartalta ulkopuolisen yhteen kohde!" href="#">Muuta ulkopuolisen yhteen kohdetta</a><a href="#" class="btn remove_outsider_obj">Poista yhde</a>');
+	} else {
+		$('.outsider_object').html('<a href="#" class="btn add_outside_connection">Lisää ulkopuolinen yhde</a>');
+	}
+
   card.find('.inlet_wrap div').each(function() {
+	  
   var inpipe = $(this);
   var total_inlets_data = $('<div class="total_inlets_data">'+      
                   '<div class="details_title"><span>Tulo, '+inpipe.attr('data-inang')+'&deg;</span></div>'+
@@ -1278,7 +1666,8 @@ function create_menu_from_source(current) {
                   '<div>Kaivosta: <a href="#" class="well_link" data-well_link="'+inpipe.attr('data-coming_from')+'">'+inpipe.attr('data-coming_from')+'</a></div>'+
                   '</div>');
 
-    $('.total_inlets').append(total_inlets_data);
+		$('.total_inlets').append(total_inlets_data);
+
   });  
 
           spinner.removeClass('active');
@@ -1331,8 +1720,8 @@ function create_menu_from_source(current) {
       inlet_option.find('.details_out_height').val(card_inlet_data[i][5]);
     }
   }
-            
-options.find('.outlet_options[data-target="'+target_array[i]+'"]').after(inlet_option);
+
+	options.find('.outlet_options[data-target="'+target_array[i]+'"]').after(inlet_option);
 
           spinner.removeClass('active');
             
@@ -1343,11 +1732,8 @@ options.find('.outlet_options[data-target="'+target_array[i]+'"]').after(inlet_o
       );  
   }); 
   } 
-  
-  
+
 }
-
-
 
 
 $(document).on('change', '.details select', function() {
@@ -1355,25 +1741,15 @@ $(document).on('change', '.details select', function() {
   var selected = $(this),
       base_val = selected.find('option:selected').attr('data-outlet_amount');
   
-  if(selected.hasClass('details_outlet')){
-    selected.parents('.outlet_options').find('.details_outlet_len').val(base_val);
+	if(selected.hasClass('details_outlet')){
+		selected.parents('.outlet_options').find('.details_outlet_len').val(base_val);
     
+		var selected_size = selected.find('option:selected').attr('data-outlet_diameter'),
+			selected_index = selected.find('option:selected').index(),
 
-    /*
-    
-    massoitus if not found select first match
-    
-    get size and index
-    disable wrong size
-    
-    */
-    
-    var selected_size = selected.find('option:selected').attr('data-outlet_diameter'),
-        selected_index = selected.find('option:selected').index(),
-
-        selected_parents = selected.parents('.outlet_options'),
-        target_id = selected_parents.attr('data-target'),
-        to_select = $('.inlets_options[data-target="'+target_id+'"] .details_inlets option[data-outlet_diameter="'+selected_size+'"]').first();
+			selected_parents = selected.parents('.outlet_options'),
+			target_id = selected_parents.attr('data-target'),
+			to_select = $('.inlets_options[data-target="'+target_id+'"] .details_inlets option[data-outlet_diameter="'+selected_size+'"]').first();
 
     
         $('.inlets_options[data-target="'+target_id+'"] .details_inlets option').each(function() {
@@ -1387,63 +1763,95 @@ $(document).on('change', '.details select', function() {
             }
           
         });
-    
-    
+
         $('.inlets_options[value="'+target_id+'"] .details_inlets option').removeAttr('selected');
     
         to_select.attr('selected','selected').prop('selected',true);
-  }
+	}
   
-  if(selected.hasClass('details_inlets')){
-    selected.parents('.inlets_options').find('.details_inlets_len').val(base_val);
-  }
-  
+	if(selected.hasClass('details_inlets')){
+		selected.parents('.inlets_options').find('.details_inlets_len').val(base_val);
+	}
+
         menu_to_source($('.object.active'));
-        recalc();
-  
+
 });
 
 
+function removeValue(list, value) {
 
-  function reset_connection(source_id, new_target_id, old_target_id) {
+	if(list !== undefined){
 
-    var count = 0;
+	return list.replace(new RegExp(",?" + value + ",?"), function(match) {
+		var first_comma = match.charAt(0) === ',',
+			second_comma;
+
+		if (first_comma &&
+			  (second_comma = match.charAt(match.length - 1) === ',')) {
+		return ',';
+		}
+		return '';
+	});
+	
+	}
+};
+
+  function reset_connection(old_id, new_id) {
+
+	$('.object[data-target*="'+old_id+'"]').each(function() {
+		var current_source = $(this),
+			target_list = current_source.attr('data-target'),
+			new_list = target_list.replace(old_id, new_id);
+		
+		current_source.attr('data-target', new_list);
+	});
+	  
+//turn to array first
+	$('.outlet_out').each(function() {
+		var outlet_out_list = $(this).text(),
+			find = old_id,
+			regex = new RegExp(find, "g");
+
+			new_outlet_out_list = outlet_out_list.replace(regex, new_id);
+			
+		$(this).text(new_outlet_out_list);
+	});
+	  
+	$('.outlet_in').each(function() {
+		var outlet_in_list = $(this).text(),
+			find = old_id,
+			regex = new RegExp(find, "g");
+		
+			new_outlet_in_list = outlet_in_list.replace(regex, new_id);
+			
+		$(this).text(new_outlet_in_list);
+	});
+	  
+	$('.inlet_wrap').each(function() {
+		$(this).find('div[data-coming_from="'+old_id+'"]').attr('data-coming_from', new_id);
+	});
+	  
+	$('.outlet_wrap').each(function() {
+		$(this).find('div[data-target="'+old_id+'"]').attr('data-target', new_id);
+	});
+
+
+    $('.object').each(function() {
+		var currently_checking = $(this);
+		
+		var target_list = currently_checking.attr('data-target');
+		var target_array = target_list.split(",");
     
-    $('.object[data-id_full*="'+new_target_id+'"]').each(function() {
-      count++;
+		if(target_list !== undefined){
+			$.each(target_array,function(i){
+				var target_found = $('.object[data-id_full="'+target_array[i]+'"]').length;
+				if(target_found == 0){
+					var new_list = removeValue(target_list, target_array[i]);
+					currently_checking.attr('data-target', new_list);
+				}
+			});
+		}
     });
-
-    if(count == 1){
- 
-      $('.object[data-target*="'+source_id+'"]').each(function() {
-
-      var current_source = $(this),
-      target_list = current_source.attr('data-target'),
-      new_list = target_list.replace(old_target_id, new_target_id);
-
-      current_source.attr('data-target', new_list);
-
-      });
-
-      return true;
-      
-    } else if(count >=2){
-      
-      
-      
-      $('.object[data-target*="'+source_id+'"]').each(function() {
-        $(this).attr('data-target', '');
-      });
-      
-      
-      body.addClass('message').attr('data-message', 'Useammalla kuin yhdellä kaivolla on sama ID!');
-
-      setTimeout(function(){
-        body.removeClass('message').attr('data-message', '');
-      }, 4000);
-
-      return false;
-    }
     
   }
 
@@ -1454,27 +1862,37 @@ $(document).on('change', '.details select', function() {
     if($(this).is('.details_id')){
       
       var field = $(this),
-      cur_source = field.attr('data-source'),
-      cur_card_type = field.attr('data-card_type'),
-      cur_value = field.val();
-      
-      if(cur_value == ''){cur_value = '00'}
-      
-      var cur_prev_val = field.attr('data-prev_val'),
-      cur_card = cur_card_type+'-'+cur_value,
-      cur_prev_card = cur_card_type+'-'+cur_prev_val;
-      
-        menu_to_source(cur_obj);
-        reset_connection(cur_source, cur_card, cur_prev_card);
-        field.attr('data-prev_val', cur_value);
-        recalc();
+      field_card_type = field.attr('data-card_type'),
+      field_value = field.val(),
+	  new_id = field_card_type+'-'+field_value;
+
+		var dubs = $('.object[data-id_full="'+new_id+'"]').length;
+
+		if(dubs >= 2 || field_value == '') {
+
+			body.addClass('message dublicate_id').attr('data-message', 'Useammalla kuin yhdellä kaivolla on sama ID!');
+			
+		} else {
+
+			var old_id = field.attr('data-source');
+			
+			options.find('[data-ownid]').attr('data-ownid', new_id);
+			field.attr('data-source', new_id);
+			body.removeClass('message dublicate_id').attr('data-message', '');
+
+		menu_to_source(cur_obj);
+		reset_connection(old_id, new_id);
+		menu_to_source(cur_obj);
+	  
+		}
+
     } else {
-      menu_to_source(cur_obj);
-      recalc();
+		menu_to_source(cur_obj);
     }
-    
 
   });
+
+
 
 function menu_to_source(card) {
 
@@ -1490,114 +1908,119 @@ function menu_to_source(card) {
       current.attr('data-bottom_pin', obj_bottom_pin);
       current.attr('data-chamber', obj_chamber);
   
-  if(!current.hasClass('ghost')){
-    current.attr('data-id', card_id);
-    current.attr('data-id_full', card_id_full);
-  }
+	if(!current.hasClass('ghost')){
+		current.attr('data-id', card_id);
+		current.attr('data-id_full', card_id_full);
+	}
 
   
-      var outlet_options_array = [];
+	var outlet_options_array = [];
   
     $('.outlet_options').each(function() {
-      var current_outlet = $(this),
-      current_outlet_selected = current_outlet.find('.details_outlet option:selected'),
-      current_outlet_identifier = current_outlet.find('.details_outlet').val(),
-      current_outlet_name = current_outlet_selected.text(),
-      current_outlet_unit = current_outlet_selected.attr('data-outlet_unit'),
-      current_outlet_dia = current_outlet_selected.attr('data-outlet_diameter'),
-      current_outlet_amount = current_outlet.find('.details_outlet_len').val(),
-      current_outlet_target = current_outlet.attr('data-target');
+		var current_outlet = $(this),
+			current_outlet_selected = current_outlet.find('.details_outlet option:selected'),
+			current_outlet_identifier = current_outlet.find('.details_outlet').val(),
+			current_outlet_name = current_outlet_selected.text(),
+			current_outlet_unit = current_outlet_selected.attr('data-outlet_unit'),
+			current_outlet_dia = current_outlet_selected.attr('data-outlet_diameter'),
+			current_outlet_amount = current_outlet.find('.details_outlet_len').val(),
+			current_outlet_zip = current_outlet.find('.details_out_height').val(),
+			current_outlet_target = current_outlet.attr('data-target');
 
       
-      if(current_outlet_selected.attr('data-outlet_unit').toUpperCase() == 'KPL'){
-        current_outlet.find('.details_outlet_len').prop( "disabled", true );
-        current_outlet.find('.details_outlet_len_wrap .outlet_unit').text('kpl');
-      } else if(current_outlet_selected.attr('data-outlet_unit').toUpperCase() == 'M'){
-        current_outlet.find('.details_outlet_len').prop( "disabled", false );
-        current_outlet.find('.details_outlet_len_wrap .outlet_unit').text('m');
-      }
+	if(current_outlet_selected.attr('data-outlet_unit').toUpperCase() == 'KPL'){
+		current_outlet.find('.details_outlet_len').prop( "disabled", true );
+		current_outlet.find('.details_outlet_len_wrap .outlet_unit').text('kpl');
+	} else if(current_outlet_selected.attr('data-outlet_unit').toUpperCase() == 'M'){
+		current_outlet.find('.details_outlet_len').prop( "disabled", false );
+		current_outlet.find('.details_outlet_len_wrap .outlet_unit').text('m');
+	}
       
       
-      if(current_outlet_selected.prop("disabled") == false){current_outlet.find('.create_checkpoint').removeClass('inactive');}
+	if(current_outlet_selected.prop("disabled") == false){current_outlet.find('.create_checkpoint').removeClass('inactive');}
       
-      outlet_options_array.push('["'+current_outlet_identifier+'", "'+current_outlet_name+'", "'+current_outlet_unit+'", "'+current_outlet_amount+'", "'+current_outlet_target+'", "'+current_outlet_dia+'"]');
-    });
+	outlet_options_array.push('["'+current_outlet_identifier+'", "'+current_outlet_name+'", "'+current_outlet_unit+'", "'+current_outlet_amount+'", "'+current_outlet_target+'", "'+current_outlet_zip+'", "'+current_outlet_dia+'"]');
     
-    current.attr('data-outlet_data', '['+outlet_options_array+']');
+	});
+    
+    current.find('.outlet_out').text('['+outlet_options_array+']');
 
-  
-      var inlets_options_array = [];
+    var inlets_options_array = [];
   
     $('.inlets_options').each(function() {
-      var current_inlet = $(this),
-      current_inlet_selected = current_inlet.find('.details_inlets option:selected'),
-      current_inlet_identifier = current_inlet.find('.details_inlets').val(),
-      current_inlet_name = current_inlet.find('.details_inlets option:selected').text(),
-      current_inlet_unit = current_inlet_selected.attr('data-outlet_unit'),
-      current_inlet_amount = current_inlet.find('.details_inlets_len').val(),
-      current_inlet_zip = current_inlet.find('.details_out_height').val(),
-      current_inlet_back = current_inlet.attr('data-ownid'),
-      current_inlet_target = current_inlet.attr('data-target');
+		var current_inlet = $(this),
+			current_inlet_selected = current_inlet.find('.details_inlets option:selected'),
+			current_inlet_identifier = current_inlet.find('.details_inlets').val(),
+			current_inlet_name = current_inlet.find('.details_inlets option:selected').text(),
+			current_inlet_unit = current_inlet_selected.attr('data-outlet_unit'),
+			current_inlet_dia = current_inlet_selected.attr('data-outlet_diameter'),
+			current_inlet_amount = current_inlet.find('.details_inlets_len').val(),
+			current_inlet_zip = current_inlet.find('.details_out_height').val(),
+			current_inlet_back = current_inlet.attr('data-ownid'),
+			current_inlet_target = current_inlet.attr('data-target');
 
-      if(current_inlet_selected.prop("disabled") == true){$('.create_checkpoint[data-target="'+current_inlet_target+'"]').addClass('inactive');}
+	if(current_inlet_selected.prop("disabled") == true){$('.create_checkpoint[data-target="'+current_inlet_target+'"]').addClass('inactive');}
 
-      if(current_inlet_selected.attr('data-outlet_unit').toUpperCase() == 'KPL'){
-        current_inlet.find('.details_inlets_len').prop( "disabled", true );
-        current_inlet.find('.details_inlets_len_wrap .inlets_unit').text('kpl');
-      } else if(current_inlet_selected.attr('data-outlet_unit').toUpperCase() == 'M'){
-        current_inlet.find('.details_inlets_len').prop( "disabled", false );
-        current_inlet.find('.details_inlets_len_wrap .inlets_unit').text('m');
-      }
+	if(current_inlet_selected.attr('data-outlet_unit').toUpperCase() == 'KPL'){
+		current_inlet.find('.details_inlets_len').prop( "disabled", true );
+		current_inlet.find('.details_inlets_len_wrap .inlets_unit').text('kpl');
+	} else if(current_inlet_selected.attr('data-outlet_unit').toUpperCase() == 'M'){
+		current_inlet.find('.details_inlets_len').prop( "disabled", false );
+		current_inlet.find('.details_inlets_len_wrap .inlets_unit').text('m');
+	}
       
-      inlets_options_array.push('["'+current_inlet_identifier+'", "'+current_inlet_name+'", "'+current_inlet_unit+'", "'+current_inlet_amount+'", "'+current_inlet_back+'", "'+current_inlet_zip+'"]');
+	inlets_options_array.push('["'+current_inlet_identifier+'", "'+current_inlet_name+'", "'+current_inlet_unit+'", "'+current_inlet_amount+'", "'+current_inlet_back+'", "'+current_inlet_zip+'", "'+current_inlet_dia+'"]');
 
     });
   
-    current.attr('data-inlet_data', '['+inlets_options_array+']');
+    current.find('.outlet_in').text('['+inlets_options_array+']');
   
     current.find('.addons').html('');
 
-    $('.checkbox_wrap :checkbox:checked').each(function() {
-      var current_checkbox = $(this),
-      checkbox_code = current_checkbox.val(),
-      checkbox_id = current_checkbox.attr('data-id');
-      current.find('.addons').append('<div data-id="'+checkbox_id+'" data-code="'+checkbox_code+'"></div>');
+	$('.checkbox_wrap :checkbox:checked').each(function() {
+		var current_checkbox = $(this),
+			checkbox_code = current_checkbox.val(),
+			checkbox_id = current_checkbox.attr('data-id');
+			
+			current.find('.addons').append('<div data-id="'+checkbox_id+'" data-code="'+checkbox_code+'"></div>');
     });
   
-    $('.radio_wrap [type=radio]:checked').each(function() {
-      var current_radio = $(this),
-      radio_code = current_radio.val(),
-      radio_id = current_radio.attr('data-id'),
-      radio_frame_unit = current_radio.attr('data-frame_unit'),
-      radio_frame_dia = current_radio.attr('data-frame_diameter'),
-      radio_frame_amount = current_radio.attr('data-frame_amount');
+	$('.radio_wrap :checkbox:checked').each(function() {
+		var current_radio = $(this),
+			radio_code = current_radio.val(),
+			radio_id = current_radio.attr('data-id'),
+			radio_frame_unit = current_radio.attr('data-frame_unit'),
+			radio_frame_dia = current_radio.attr('data-frame_diameter'),
+			radio_frame_amount = current_radio.attr('data-frame_amount');
       
-      current.attr('data-frame_unit', radio_frame_unit);
-      current.attr('data-frame_diameter', radio_frame_dia);
-      current.attr('data-frame_amount', radio_frame_amount);
-      
-      
-      current.find('.addons').append('<div data-id="'+radio_id+'" data-code="'+radio_code+'"></div>');
-    });
+		current.attr('data-frame_unit', radio_frame_unit);
+		current.attr('data-frame_diameter', radio_frame_dia);
+		current.attr('data-frame_amount', radio_frame_amount);
+		current.find('.addons').append('<div data-id="'+radio_id+'" data-code="'+radio_code+'"></div>');
+	});
 
+	if($('#options').find('.extra_outlet').length !== 0){
+		current.find('.addons').append($('#options').find('.extra_outlet')[0].outerHTML);
+	}
+	
+	setTimeout(function(){recalc();}, 500);
 }
 
-
-
-  $(document).on('click', '#send_codes', function(e) {
+	$(document).on('click', '#send_codes', function(e) {
     e.preventDefault();
-    var check = confirm("Oletko varma?");
-      if (check == true) {
-        final_code();
-      }
-  });
+		var check = confirm("Oletko varma?");
+	
+		if (check == true) {
+			final_code();
+		}
+	});
 
 function final_code() {
 
   $('#code_warnings').html('');
   
   var wells = [];
-  var fail = true;
+  var fail = false;
 
   $('.object').not('.ghost').each(function() {
 
@@ -1635,6 +2058,7 @@ function final_code() {
     var card_code = [];
     var card_ingredients_json = [];
     
+    //poisto
         obj.find('.middle').each(function(index) {
 
             var current_outpipe = $(this),
@@ -1644,47 +2068,82 @@ function final_code() {
                 outpipe_height = 0,
                 outpipe_angle = 0,
                 outpipe_drop = 0,
-                pipe_direction = 1,
-                checkpoint_data = [];
+                pipe_type = 1,
+                checkpoint_data = [],
+                final_destination = '';
 
             var current_target = $('.object[data-id_full="'+outpipe_target+'"]');
 
                 if(current_target.hasClass('ghost')){
 
                     var sources = current_target.attr('data-sources');
+                    var source_split = sources.split(',');
                     
                     $('.object[data-sources="'+sources+'"]').each(function() {
                         var ghost_obj = $(this),
-                            go_mapx = parseFloat(ghost_obj.attr('data-mapx')).toFixed(2),
-                            go_mapy = parseFloat(ghost_obj.attr('data-mapy')).toFixed(2);
+                            go_mapx = parseFloat(ghost_obj.attr('data-mapx')).toFixed(4),
+                            go_mapy = parseFloat(ghost_obj.attr('data-mapy')).toFixed(4);
 
                         var checkpoint = [go_mapx,go_mapy];
                         checkpoint_data.push(checkpoint);
                     });
+                    
+                    final_destination = source_split[1];
 
+                } else {
+                    checkpoint_data = ''; 
                 }
 
             
             if(index > 0){
-                outpipe_angle = current_outpipe.attr('data-point_dir');
+                
+                var out_one = parseFloat(obj.find('.middle').first().attr('data-point_dir'));
+                outpipe_angle = Math.abs(Math.round(parseFloat(current_outpipe.attr('data-point_dir'))) - out_one);
                 outpipe_drop = parseFloat(current_outpipe.attr('data-drop')).toFixed(2);
-                pipe_direction = 2;
+                pipe_type = 2;
             }
 
-
-            var card_ingredients = {'code': outpipe_code, 'amount': outpipe_amount, 'height': outpipe_height, 'angle': outpipe_angle, 'drop': outpipe_drop, 'linked_well_id': outpipe_target, 'link_details': [{'direction': pipe_direction, 'checkpoints': checkpoint_data}]};
+            var link_details = encodeURIComponent(JSON.stringify({"linked_to": outpipe_target, "type": pipe_type, "checkpoints": checkpoint_data, "fd": final_destination})); 
+            var card_ingredients = {'code': outpipe_code, 'amount': outpipe_amount, 'height': outpipe_height, 'angle': outpipe_angle, 'drop': outpipe_drop, 'link_details': link_details};
+            
             card_ingredients_json.push(card_ingredients);
         });
 
 
-        obj.find('.addons div').each(function() {
+    //regular parts
+        obj.find('.addons div').not('.extra_outlet').each(function() {
             var current_addon = $(this),
                 addon_code = JSON.parse(decodeURIComponent(current_addon.attr('data-code')));
                 
             card_ingredients_json.push(addon_code);
         });
+		
+		 
+		
+		if(obj.find('.addons .extra_outlet').length !== 0){
+			$('.outsider_object').html('<div class="extra_outlet_wrap">' + $('.extra_outlet')[0].outerHTML + '</div><a href="#" class="btn remove_outsider_obj">Poista yhde</a>');
+			var e_outlet = obj.find('.addons .extra_outlet'),
+				e_code = e_outlet.attr('data-code'),
+				e_type = e_outlet.attr('data-type'),
+				e_amount = e_outlet.attr('data-amount'),
+				e_height = e_outlet.attr('data-height'),
+				e_angle = e_outlet.attr('data-angle'),
+				e_drop = e_outlet.attr('data-drop'),
+				e_pos_y = e_outlet.attr('data-pos_y'),
+				e_pos_x = e_outlet.attr('data-pos_x'),
+				e_link_details = encodeURIComponent(JSON.stringify({"type": e_type, "checkpoints": '['+e_pos_y+','+e_pos_x+']'})),
+				e_id = '';
+				
+				if(e_outlet.attr('data-id') !== undefined){
+					e_id = e_outlet.attr('data-id');
+				}
+		
+			var card_ingredients = {'code': e_code, 'amount': e_amount, 'height': e_height, 'angle': e_angle, 'drop': e_drop, 'id': e_id, 'link_details': e_link_details};
+			
+			card_ingredients_json.push(card_ingredients);
+		}
 
-    
+    //tulot
         obj.find('.inlet_wrap div').each(function() {
           
             var current_inpipe = $(this),
@@ -1694,9 +2153,10 @@ function final_code() {
                 inpipe_angle = current_inpipe.attr('data-inang'),
                 inpipe_coming_from = current_inpipe.attr('data-coming_from'),
                 inpipe_drop = parseFloat(current_inpipe.attr('data-drop')).toFixed(2),
-                pipe_direction = 3;
+                pipe_type = 3;
         
-            var card_ingredients = {'code': inpipe_code, 'amount': inpipe_amount, 'height': inpipe_height, 'angle': inpipe_angle, 'drop': inpipe_drop, 'linked_well_id': inpipe_coming_from, 'link_details': [{'direction': pipe_direction}]};
+            var link_details = encodeURIComponent(JSON.stringify({"linked_to": inpipe_coming_from, "type": pipe_type})); 
+            var card_ingredients = {'code': inpipe_code, 'amount': inpipe_amount, 'height': inpipe_height, 'angle': inpipe_angle, 'drop': inpipe_drop, 'link_details': link_details};
                 
             card_ingredients_json.push(card_ingredients);
         });
@@ -1706,23 +2166,37 @@ function final_code() {
       $('.well_order_link').remove();
 
       wells.push(card_code);
-    
+      
+      console.log(wells);
+
   });
   
       if(fail == false){
         
-        api.save_wells(
-          wells,
-          function(o) {
-            console.log(o);
-            var order_id = $('#content').attr('data-wellorder-reference');
-            window.open('https://dev-ccs.kaivokortti.fi/heavyuser_wellorders/'+order_id);         
-        }, function(o) {
-            console.log('Failure');
-        });
+		spinner.addClass('active');
+
+		try {
+
+			api.save_wells(
+			  wells,
+			  function(o) {
+				console.log(o);
+				spinner.removeClass('active');
+				window.open('https://dev-ccs.kaivokortti.fi/heavyuser_wellorders/'+wor);     
+			}, function(o) {
+				console.log('Failure');
+			});
+
+		}
+		
+		catch(err) {
+			
+			spinner.removeClass('active');
+			alert('Yhteysvirhe, kokeile hetken päästä uudelleen.');
+			
+		}
         
       }
-
 }
 
 
@@ -1842,107 +2316,18 @@ $(document).on('click', '.warning', function(e) {
 });
 
 
-layout();
 
-
-
-
-
-
-
-
-
-
-
-
-//csv
-
-
-function uploadDealcsv () {}; 
-
-  uploadDealcsv.prototype.getCsv = function(e) {
-       
-      let input = document.getElementById('csv_upload');
-      input.addEventListener('change', function() {
-
-        if (this.files && this.files[0]) {
-
-            var myFile = this.files[0];
-            var reader = new FileReader();
-            
-            reader.addEventListener('load', function (e) {
-                
-                let csvdata = e.target.result; 
-                parseCsv.getParsecsvdata(csvdata);
-            });
-            
-            reader.readAsBinaryString(myFile);
+	var zoning_data;
+	
+    api.wellorder_reference(
+        wor,
+        function(o) {
+            console.log(o);
+			zoning_data = o.zoning_plan;
+            if(o.wellorders.length > 0){load_inlet_list(o.wellorders);}
+            if(zoning_data.length > 0){showPDF(zoning_data);}
+        }, function(o) {
+              console.log('Failure');
+              console.log(o);
         }
-      });
-    }
-
-    uploadDealcsv.prototype.getParsecsvdata = function(data) {
-
-        var headers = [];
-        var parsedata = [];
-        
-        var newLinebrk = data.split("\n");
-        
-        for(var i = 0; i < newLinebrk.length; i++) {
-            parsedata.push(newLinebrk[i].split(";"));
-        }
-        
-        for(var row = 1; row < parsedata.length; row++) {
-
-            var csv_card_data = '';
-            var frame_id = 0;
-            
-            for(var row_col = 0; row_col < parsedata[row].length; row_col++) {
-                
-                var row_col_key = parsedata[0][row_col];
-                var row_col_val = parsedata[row][row_col];
-                var breaks = /\r/.exec(row_col_val);
-                
-                if(!breaks && row_col_val !== ""){
-                    
-                    if(row_col_key == 'outlet_diameter'){
-                        csv_card_data += '<div class="csv_outlet_wrap">';
-                    }
-                    
-                    if(row_col_key == 'inlet1_diameter' || row_col_key == 'inlet2_diameter' || row_col_key == 'inlet3_diameter' || row_col_key == 'inlet4_diameter'){
-                        csv_card_data += '<div class="csv_inlet_wrap">';
-                    }
-                    
-                    csv_card_data += '<div data-key="'+row_col_key+'" data-value="'+row_col_val+'"></div>';
-                    
-                    if(row_col_key == 'name' || row_col_key == 'height' || row_col_key == 'qty'){
-                        csv_card_data += '<label data-header="'+row_col_key+'">'+row_col_key+': <input class="csv_input" type="text" name="" value="'+row_col_val+'"></label>';
-                        
-                    }      
-                    
-                    
-                    if(row_col_key == 'outlet_angle' || row_col_key == 'inlet1_angle' || row_col_key == 'inlet2_angle' || row_col_key == 'inlet3_angle' || row_col_key == 'inlet4_angle'){
-                        csv_card_data += '</div>';
-                    }
-                    
-                }
-                
-                if(row_col_key == 'item_number'){
-                    frame_id = row_col_val;    
-                }
-                
-            }
-
-            if(frame_id !== 0){
-                var csv_card = '<div class="csv_card" data-frame_id="'+frame_id+'">'+csv_card_data+'</div>';
-                $('.import_csv').append(csv_card);   
-            }
-
-        }
-
-
-    }
-  
-  var parseCsv = new uploadDealcsv();
-  parseCsv.getCsv();
-
+    );
