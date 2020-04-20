@@ -931,7 +931,8 @@ cursor: pointer;
     vertical-align: top;
     cursor: pointer;
     color: #ffffff!important;
-    background: #003da5;
+    background-color: #0a64ab;
+    box-shadow: 0 2px 5px rgba(56, 56, 56, 0.2);
     border: 1px solid rgba(0, 0, 0, 0)!important;
     font-weight: 700;
     outline: none!important;
@@ -1224,18 +1225,23 @@ position: absolute;
     top: 2px;
     left: 5px;
 }
-
-
-@media all and (orientation:portrait){
-  
-  .warning.active {
-    display: block;
-  }
-  
-}
 #code_warnings {
     font-weight: 700;
     font-size: .85em;
     margin: 20px 0;
     color: #de0000;
 }
+
+@media all and (orientation:portrait){
+  
+  .warning.active {
+    display: block;
+  }
+  #map_overflow_wrap, #map_wrap, #map_zoom_wrap, #map, .pdf_image, #objects_wrap, .object{display:block;}
+}
+
+@media print {
+  
+*, *::before, *::after{display:none;}
+  
+} 
