@@ -1,7 +1,5 @@
 
 
-// <---------- build layout
-
 var new_layout = '<div id="map_inputs">'+
     '<div>'+
         '<a href="#" class="btn instructions">Ohjeet</a>'+
@@ -104,8 +102,6 @@ var new_layout = '<div id="map_inputs">'+
 '<span class="spinner"></span>'+
 '<a href="#" class="warning active"><span class="screen_arrow">&#10554;</span><span class="screen_w"></span><span class="screen_h"></span></a>';
 
-// -------------->
-
 $('#zoning_app').html(new_layout);
 $('.container').addClass('container-fluid').removeClass('container');
 
@@ -124,7 +120,8 @@ $('.container').addClass('container-fluid').removeClass('container');
       middle_point = $('#center_point'),
       menu = $('#menu'),
       options = $('#options'),
-      close_options_button = $('#close_options');
+      close_options_button = $('#close_options'),
+	  base_url = window.location.origin;
 
   var map_size = 0.02,
       map_irl_width = 100,
@@ -2187,8 +2184,6 @@ function final_code() {
       $('.well_order_link').remove();
 
       wells.push(card_code);
-      
-      console.log(wells);
 
   });
   
@@ -2203,7 +2198,7 @@ function final_code() {
 			  function(o) {
 				console.log(o);
 				spinner.removeClass('active');
-				window.open('https://dev-ccs.kaivokortti.fi/heavyuser_wellorders/'+wor);     
+				window.open(base_url+'/heavyuser_wellorders/'+wor);     
 			}, function(o) {
 				console.log('Failure');
 			});
