@@ -4,8 +4,9 @@
 
 var new_layout = '<div id="map_inputs">'+
     '<div>'+
-        '<a href="#" class="btn instructions">ohjeet</a>'+
+        '<a href="#" class="btn instructions">Ohjeet</a>'+
         '<a href="#" class="btn calculations">'+I18n.t("zoning.show.counts")+'</a>'+
+		'<a href="#" class="btn" id="print_plan">Tulosta kuva+kaivopaikat</a>'+
         '<a href="#" class="btn" id="send_codes">Lähetä kaivot ccs:ään</a>'+
     '</div>'+
     '<div id="object_scale_wrap">'+I18n.t("zoning.show.object_scale")+':'+
@@ -53,31 +54,51 @@ var new_layout = '<div id="map_inputs">'+
 '</div>'+
 '<div id="inst">'+
     '<a href="#" class="close_pop">x</a>'+
-    '<div><section>'+
-        '<h3><span class="mouse_icon"></span>Käytätkö hiirtä?</h3>'+
-        '<p>Karttaa liikutetaan / objekteja siirretään pitämällä hiiren vasenta näppäintä pohjassa</p>'+
-        '<p>Oikean napin painallus lisää kartalle objektin / avaa objektin valikon</p>'+
-        '<p>Rullalla zoomaillaan</p>'+
-    '</section>'+
-    '<section>'+
-        '<h3>Hyvä tietää</h3>'+
-        '<p>Kirjoita "kaivonumero/id"-kenttään vain kaivonumero, kaivon tyyppi haetaan automaattisesti</p>'+
-		'<p>Kaivolle ei ole määritelty poistoa = nolla otetaan pohjoisesta</p>'+
-		'<p>Ulkoinen yhde on tulo = irrallinen yhde jolla asteet menee kaivon suunnan mukaan</p>'+
-		'<p>Ulkoinen yhde on poisto = kaivoon liitetyt yhteet ottavat nollan siitä</p>'+
-		'<p>Ulkoisia yhteitä käytetään vain jos kaivo liittyy johonkin vanhaan linjaan</p>'+
-		'<p>Ulkoinen poisto-yhde estää kaivoa yhdistämästä linjaa muihin kaivoihin/jos on määritelty linja niin ulkoista poistoa ei voi lisätä</p>'+
-		'<p>Kaivolle voi antaa useamman poiston, kakkospoisto näkyy ccs:ssä tulona, mutta siirtyy massoituksessa takaisin kakkospoistoksi</p>'+
-		'<p>Kakkospoisto estää antamasta "etappimerkintää" ykköspoistolle</p>'+
-		'<p>Etappimerkintä nappi häviää jos se on jo määritelty ja kyseisen kaivon valikon avaa uudelleen</p>'+
-		
-		'<h3>Seuraavien asioiden muokkaaminen manuaalisesti CCS:ssä estää tilauksen avautumisen massoituksessa</h3>'+
-		'<p>Kaivo id:n vaihtaminen</p>'+
-		'<p>Kaivon poisto tai lisäys</p>'+
-		'<p>Tulon/poiston poistaminen</p><br>'+
-		
-		'<div style="color:#e40000;font-weight:700;">Huom. Jos kaivot on alunperin lisätty massoitustyökalulla, tee muokkaukset myös massoitustyökalulla</div>'+
-	'</section>'+
+    '<div>'+
+		'<h2>Massoitustyökalun ohjeet</h2>'+
+			'<h3>Hiiren käyttö</h3>'+
+			'<ul>'+
+			'<li>Karttaa liikutetaan / objekteja siirretään pitämällä hiiren vasenta painiketta pohjassa</li>'+
+			'<li>Oikean napin painallus lisää kartalle objektin / avaa objektin valikon</li>'+
+			'<li>Rullalla zoomaillaan</li>'+
+			'</ul>'+
+
+			'<h3>Näin pääset alkuun</h3>'+
+			'<ol>'+
+			'<li>Lataa sivulle kuva asemakaavasta ja tarkista että mittakaava on oikea</li>'+
+			'<li>Valitse vasemmasta valikosta kartalle lisättävä kaivo</li>'+
+			'<li>Lisää kaivoja kartalle klikkaamalla karttaa hiiren oikealla painikkeella</li>'+
+			'<li>Kaivoa voi liikutella pitämällä hiiren vasenta painiketta pohjassa</li>'+
+			'<li>Klikkaa hiiren oikealla napilla kaivoa avataksesi tämän valikon</li>'+
+			'<li>Kun kaivon valikko on auki, niin voit yhdistää kaivon muihin kaivoihin</li>'+
+			'<li>"Nollaa poistot"-nappi on ainoa tapa poistaa kaivosta poisto/poistot</li>'+
+			'<li>Etene valikkoa järjestyksessä, huomaa että valikosta on mahdollista valita liikaa osia</li>'+
+			'<li>Ulkopuolista yhdettä tulee käyttää ainoastaan silloin, kun kaivolla on ulkopuolinen yhteys</li>'+
+			'<li>Ulkopuolinen poistoyhde asettaa kaivon nollan suunnan, tulo käyttäytyy normaalina yhteenä, ulkopuoliset yhteet rajattu yhteen per kaivo</li>'+
+			'<li>Jos kaivoihin on jäänyt virheitä, niin lähettäminen CCS:ään ei onnistu</li>'+
+			
+			'</ol>'+
+
+			'<h3 class="notice_color">Seuraavien asioiden muokkaaminen manuaalisesti CCS:ssä estää tilauksen avautumisen massoituksessa</h3>'+
+			'<ul class="notice_color">'+
+			'<li>Kaivo id:n vaihtaminen</li>'+
+			'<li>Kaivon poisto tai lisäys</li>'+
+			'<li>Tulon/poiston poistaminen</li>'+
+			'</ul>'+
+
+			'<h3>Ominaisuudet / ota huomioon</h3>'+
+			'<ul>'+
+			'<li>Kirjoita "kaivonumero/id"-kenttään vain kaivonumero, kaivon tyyppi haetaan automaattisesti</li>'+
+			'<li>Kaivolle ei ole määritelty poistoa = nolla otetaan pohjoisesta</li>'+
+			'<li>Ulkoinen yhde on tulo = irrallinen yhde jolla asteet menee kaivon suunnan mukaan</li>'+
+			'<li>Ulkoinen yhde on poisto = kaivoon liitetyt yhteet ottavat nollan siitä</li>'+
+			'<li>Ulkoisia yhteitä käytetään vain jos kaivo liittyy johonkin vanhaan linjaan</li>'+
+			'<li>Ulkoinen poisto-yhde estää kaivoa yhdistämästä linjaa muihin kaivoihin/jos on määritelty linja niin ulkoista poistoa ei voi lisätä</li>'+
+			'<li>Kaivolle voi antaa useamman poiston, kakkospoisto näkyy ccs:ssä tulona, mutta siirtyy massoituksessa takaisin kakkospoistoksi</li>'+
+			'<li>Kakkospoisto estää antamasta "etappimerkintää" ykköspoistolle</li>'+
+			'<li>Etappimerkintä nappi häviää jos se on jo määritelty ja kyseisen kaivon valikon avaa uudelleen</li>'+
+			'</ul>'+
+		'<h3 class="notice_color">Huom. Jos kaivot on alunperin lisätty massoitustyökalulla, tee muokkaukset myös massoitustyökalulla</h3>'+
 	'</div>'+
 '</div>'+
 '<span class="spinner"></span>'+
@@ -2309,13 +2330,15 @@ instance.on('transform', function(e) {
       e.preventDefault()
   });
 
-
-$(document).on('click', '.warning', function(e) {
-    e.preventDefault();
-    $(this).removeClass('active');
-});
-
-
+	$(document).on('click', '#print_plan', function(e) {
+		e.preventDefault();
+		setTimeout(function(){window.print();}, 500);
+	}); 
+	
+	$(document).on('click', '.warning', function(e) {
+		e.preventDefault();
+		$(this).removeClass('active');
+	});
 
 	var zoning_data;
 	
