@@ -1237,11 +1237,11 @@ position: absolute;
   .warning.active {
     display: block;
   }
-  #map_overflow_wrap, #map_wrap, #map_zoom_wrap, #map, .pdf_image, #objects_wrap, .object{display:block;}
+
 }
 
 @media print {
   
 *, *::before, *::after{display:none;}
-  
+#map_overflow_wrap, #map_wrap, #map_zoom_wrap, #map, .pdf_image, #objects_wrap, .object{display:block;}
 } 
