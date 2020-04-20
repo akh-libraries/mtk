@@ -854,9 +854,7 @@ content:'\2192';
 }
 #inst ul li {list-style: initial;}
 #print_plan{display:none;}
-.notice_color {
-    color: #ca0e00;
-}
+.notice_color {color: #ca0e00!important;}
 .upload-btn-wrapper {
   position: relative;
   overflow: hidden;
