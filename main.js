@@ -85,6 +85,7 @@ var new_layout = '<div id="map_inputs">'+
 			'<li>Kaivon poisto tai lisäys</li>'+
 			'<li>Tulon/poiston poistaminen</li>'+
 			'</ul>'+
+			'<p class="notice_color">Huom. Jos kaivot on alunperin lisätty massoitustyökalulla, tee muokkaukset myös massoitustyökalulla</p>'+
 
 			'<h3>Ominaisuudet / ota huomioon</h3>'+
 			'<ul>'+
@@ -98,7 +99,6 @@ var new_layout = '<div id="map_inputs">'+
 			'<li>Kakkospoisto estää antamasta "etappimerkintää" ykköspoistolle</li>'+
 			'<li>Etappimerkintä nappi häviää jos se on jo määritelty ja kyseisen kaivon valikon avaa uudelleen</li>'+
 			'</ul>'+
-		'<h3 class="notice_color">Huom. Jos kaivot on alunperin lisätty massoitustyökalulla, tee muokkaukset myös massoitustyökalulla</h3>'+
 	'</div>'+
 '</div>'+
 '<span class="spinner"></span>'+
