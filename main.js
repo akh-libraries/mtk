@@ -1594,7 +1594,7 @@ function create_menu_from_source(current) {
     if(pohja_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Pohja:</span></div>'+pohja_opt+'</div>');}
     if(lisavaruste_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Lisävarusteet:</span></div>'+lisavaruste_opt+'</div>');}
 
-	if(sakka_json.length == 0){options.find('.detail_6').hide();}
+// if(sakka_json.length == 0){options.find('.detail_6').hide();}
 
 // if new card, use default values
     if(card.hasClass('fresh_card')){
