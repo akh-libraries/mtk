@@ -343,7 +343,7 @@ function load_inlet_list(order_json) {
 	$.each(unique_chamber, function( key, value ) {
 		
 		api.wellingredients(
-			unique_chamber,
+			value,
 			function(o) {
 				var json_set_1 = helper.filter_ingredients_by_categories(o, inlet_set_1);
 				var json_set_2 = helper.filter_ingredients_by_categories(o, inlet_set_2);
