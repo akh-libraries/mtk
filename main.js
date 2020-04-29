@@ -1445,7 +1445,7 @@ function create_menu_from_source(current) {
                 '<div class="detail_4"><div class="details_title">&#8593; maanpinta:</div><input class="details_upper_m" type="number" name="upper" autocomplete="off" value="'+card_top_pin+'"></div>'+
                 '<div class="detail_5"><div class="details_title">&#8595; v.juoksu:</div><input class="details_lower_m" type="number" name="lower" autocomplete="off" value="'+card_bottom_pin+'"></div>'+
                       
-                '<div class="detail_6"><div class="details_title">sakkapesä:</div><input class="details_chamber" type="number" name="chamber" autocomplete="off" value="'+card_chamber+'"><span>cm</span></div>'+
+                '<div class="detail_6"><div class="details_title">sakkapesä:</div><input class="details_chamber" type="number" name="chamber" autocomplete="off" value="'+card_chamber+'"><span>m</span></div>'+
 
                 '<div class="inlet_outlet_placeholder"></div>'+
                   
