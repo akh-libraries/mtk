@@ -287,6 +287,7 @@ position: absolute;
 .view_options .object.active .connect .connect_txt, .object.ghost .connect,
 .outlet_out, .outlet_in, .pre_inlet_placeholder{display:none;}
 
+.view_options.prevent_outs .connect{display:none!important;}
 .view_options.prevent_outs .connect .connect_txt{display:none!important;}
 
 .object[data-out_count="2"][data-type="sok"] .middle span{
@@ -316,8 +317,6 @@ position: absolute;
 
 .object.active::before {
     content: attr(data-title) ' (' attr(data-id_full) ')';
-    background: rgba(27, 100, 0, 0.85);
-    color: #ebffeb;
     width: 35px;
     white-space: normal;
 }
@@ -387,55 +386,66 @@ z-index:2000;
 .object.ghost.notice3 .center::after{display:none;}
 
 .middle, .center, .addons{
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  height: 2px;
-  width: 2px;
-  margin:-1px 0 0 -1px;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	height: 2px;
+	width: 2px;
+	margin:-1px 0 0 -1px;
+	z-index: 10;
 }
 .addons .extra_outlet{
     position: absolute;
-    bottom: 18px;
+    top: 0;
     height: 30px;
-    width: 4px;
-    left: -1px;
+    width: 2px;
+    left: 0;
     background: #8c8c8c;
     background: rgba(255, 0, 0, 0.4);
-    border-radius: 50%;
+    transform: rotate(-36deg);
+    transform-origin: 50% 0;
 }
-
+.addons .extra_outlet[data-type="4"]::before{
+    content: 'u. tulo' attr(data-index) '\A' attr(data-angle) '\00b0';
+    position: absolute;
+    top: 20px;
+    left: 2px;
+    padding: 0 1px 0 2px;
+    font-size: .35em;
+    background: rgba(49, 49, 49, 0.9);
+    color: white;
+    white-space: pre-wrap;
+    width: 20px;
+}
 .addons .extra_outlet::after{
     position: absolute;
     content: '\2195';
     width: 6px;
-    left: 2px;
+    left: 1px;
     bottom: 50%;
     margin-bottom: -12px;
     margin-left: -3px;
     text-align: center;
     background: #d4001d;
     color: white;
-    height: 22px;
-    line-height: 20px;
-    font-size: 12px;
-    border-radius: 2px;
+    height: 14px;
+    line-height: 13px;
+    font-size: 8px;
 }
 .addons .extra_outlet[data-type="4"]::after{
-    content: '\2193';
+    content: '\2191';
 }
 .addons .extra_outlet[data-type="5"]::after{
-    content: '\2191';
+    content: '\2193';
 }
 .middle span {
     position: absolute;
     bottom: 27px;
     left: 0;
-    width: 4px;
-    left: -1px;
+    width: 2px;
+    left: 0;
     background: #8c8c8c;
     background: rgba(255, 0, 0, 0.4);
-    border-radius: 50%;
 }
 .middle span::before {
     content: '';
@@ -573,6 +583,10 @@ display:none;
 .details > div {
 	margin:5px 0;
 }
+.detail_1 span{
+    margin: 5px 0;
+    display: inline-block;
+}
 .dublicate_id .details > div, .dublicate_id #options .tag {
 	display:none;
 }
@@ -625,7 +639,6 @@ display:none;
     margin: 0 7px 0 0;
     vertical-align: middle;
 }
-
 .details .inlet_outlet_placeholder  {
   margin:0 1%;  
 }
@@ -633,13 +646,20 @@ display:none;
   margin:0;  
 }
 
-
-.outsider_object, .total_inlets_data  {
+.outsider_wrap, .total_inlets_data {
     background: #fafafa;
     padding: 10px;
     border-radius: 3px;
     margin: 10px 0;
     border: 1px dashed #a8a8a8;
+}
+
+.outsider_object {
+	padding: 6px;
+    border-radius: 3px;
+    background: #e8e8e8;
+    box-shadow: 0 0 0 1px #c7c7c7;
+    margin-bottom: 10px;
 }
 
 .extra_outlet_wrap .extra_outlet {
@@ -883,18 +903,11 @@ cursor: pointer;
     font-weight: 700;
     outline: none!important;
 }
-.btn.add_outside_connection, .btn.add_outsider_obj, .btn.remove_outsider_obj {
-	padding: 4px 0;
-    display: block;
-    margin: 0;
-	font-size:.8em;
-}
+
 #options .outsider_object .tag {
 	margin: 8px 0;
 }
-.btn.add_outsider_obj {
-    margin: 8px 0;
-}
+
 .btn.delete_object {
     font-weight: 700;
     margin: 8px 0;
@@ -1200,7 +1213,14 @@ position: absolute;
 	.object[data-type="TP"]{box-shadow: inset 0 0 0 50px #ac8f01!important;}
 	.object[data-type="NOK"]{box-shadow: inset 0 0 0 50px #673AB7!important;}
 	
-	.object::before{font-size: .8em!important;}
+
+	.object::before{
+		font-size: .8em!important;
+		width: inherit!important;
+		white-space: nowrap!important;
+		content: attr(data-id_full)!important;
+	}
+	
 	.object[data-type="SVK"]::before {color: #268e2a!important;}
 	.object[data-type="SVTK"]::before {color: #ac8f01!important;}
 	.object[data-type="JVTK"]::before {color: #cb0000!important;}
@@ -1231,6 +1251,6 @@ position: absolute;
 		background: white!important;
 	}
 	
-	#menu, #options, .fullscreen_button, .middle, .center{display:none;}
+	#menu, #options, .fullscreen_button, .middle, .center{display:none!important;}
 
 } 
