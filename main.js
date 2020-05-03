@@ -1,5 +1,4 @@
 
-
 var new_layout = '<div id="map_inputs">'+
     '<div>'+
         '<a href="#" class="btn instructions">Ohjeet</a>'+
@@ -243,16 +242,10 @@ $('#map_overflow_wrap, #vr_wrap').on('mousewheel DOMMouseScroll', function (e) {
 });
   
   
-	$(document).on('input change', '.details .num_field, .details select', function () {
+	$(document).on('input change', '.details input, .details select', function () {
 
     var field = $(this);
     var cur_value = field.val();
-    
-    if(field.hasClass('num_field')){
-      cur_value = cur_value.replace(/[^0-9\.]/g,'');
-      cur_value = cur_value.replace(',', '.').replace(/[^\d\.]/g, "").replace(/\./, "x").replace(/\./g, "").replace(/x/, ".");
-      field.val(cur_value);
-    }
     
 
     if(field.is('select')){
@@ -335,6 +328,7 @@ function load_inlet_list(order_json) {
 		well_ids.push(obj_wellgroup);
 	}
 
+	//es5 change
 	var unique_chamber = well_ids.filter((item, i, ar) => ar.indexOf(item) === i);
 	
 	var inlet_set_1 = helper.category_and_children(helper.find_category_by_path(['yhde', 'poisto']));
@@ -443,19 +437,18 @@ function reload_order(order_json) {
 					target_data += linked_to+',';
 					outlet_div += '<div data-inlet_id="'+current_row.ingredient+'" data-target="'+linked_to+'" data-amount="'+current_row.amount+'" data-zip="'+current_row.height+'" class="middle"><span></span></div>';
 					
-
 					final_val_outs.unshift('["'+current_row.ingredient+'", "'+inlet_title+'", "'+inlet_unit+'", "'+current_row.amount+'", "'+linked_to+'", "'+current_row.height+'", "'+inlet_dia+'"]');
 					
 					
 				} else if(link_type == '3'){ // inlet, append to inlets
 					
 					inlet_div += '<div data-inlet_id="'+current_row.ingredient+'" data-coming_from="'+linked_to+'" data-amount="'+current_row.amount+'" data-zip="'+current_row.height+'"></div>';
-				
 					final_val_ins += '<div data-going_to="'+linked_to+'">["'+current_row.ingredient+'", "'+inlet_title+'", "'+inlet_unit+'", "'+current_row.amount+'", "'+linked_to+'", "'+current_row.height+'", "'+inlet_dia+'"]</div>';
 		
 				} else if(link_type == '4' || link_type == '5'){ // inlet/outlet outside
 
-					addon_data += '<div class="extra_outlet" data-type="'+link_type+'" data-title="'+inlet_title+'" data-pos_y="'+JSON.parse(checkpoint_data)[0]+'" data-pos_x="'+JSON.parse(checkpoint_data)[1]+'" data-code="'+current_row.ingredient+'" data-amount="'+current_row.amount+'" data-height="'+current_row.height+'" data-angle="'+current_row.angle+'" data-drop="'+current_row.drop+'" data-id="'+current_row.id+'"></div>';
+					var link_index = read_link['index'];;
+					addon_data += '<div class="extra_outlet" data-index="'+link_index+'" data-type="'+link_type+'" data-title="'+inlet_title+'" data-pos_y="'+JSON.parse(checkpoint_data)[0]+'" data-pos_x="'+JSON.parse(checkpoint_data)[1]+'" data-code="'+current_row.ingredient+'" data-amount="'+current_row.amount+'" data-height="'+current_row.height+'" data-angle="'+current_row.angle+'" data-drop="'+current_row.drop+'" data-id="'+current_row.id+'"></div>';
 
 				}
 
@@ -675,25 +668,27 @@ var pin_counter = 1;
 
 function recalc() {
   
-  if(timestamp+10 > get_time()){
+if(timestamp+10 > get_time()){
 
-  } else {
+} else {
 
- try {
-  measure_wrap.html('');
-  $('.inlet_wrap').html('');
-  $('.center').html('');
-  $('.pin').remove();
+try {
+	 
+	$('.object').removeClass('notice notice2 notice3');
+
+	measure_wrap.html('');
+	$('.inlet_wrap').html('');
+	$('.center').html('');
+	$('.pin').remove();
   
-  pin_counter = 1;
+	pin_counter = 1;
   
-  var dist;
+	var dist;
     
   $('.object').each(function() {
 	
   var object = $(this);
 
-	object.removeClass('notice2');
 
   var card_id_full = object.attr('data-id_full'),
       card_type = object.attr('data-type'),
@@ -710,60 +705,54 @@ function recalc() {
 		y: own_mid.left
 	};
 
-	if(object.find('.addons .extra_outlet').length !== 0){
-		
-		var extra_outlet = object.find('.addons .extra_outlet'),
-			extra_type = extra_outlet.attr('data-type');
-		
+	object.find('.addons .extra_outlet').each(function() {
+	   
+			var extra_outlet = $(this),
+				extra_type = extra_outlet.attr('data-type');
 
-		$('#objects_wrap').append('<span class="pin pin'+pin_counter+'" style="transform:scale('+scale_factor/zoomer+','+scale_factor/zoomer+');left:'+extra_outlet.attr('data-pos_x')+'%;top:'+extra_outlet.attr('data-pos_y')+'%;"></span>');
-		
-		var pin_offset = $('.pin'+pin_counter).offset();
-		
-        var px = {
-			x: pin_offset.top + 13,
-			y: pin_offset.left + 13
-        };
-		
-		var e_angle = Math.atan2(px.y - p2.y, px.x - p2.x) * 180 / Math.PI,
-			final_e_ang = parseInt((180-card_angle)+(e_angle*-1));
+			$('#objects_wrap').append('<span class="pin pin'+pin_counter+'" style="transform:scale('+scale_factor/zoomer+','+scale_factor/zoomer+');left:'+extra_outlet.attr('data-pos_x')+'%;top:'+extra_outlet.attr('data-pos_y')+'%;"></span>');
+			
+			var pin_offset = $('.pin'+pin_counter).offset();
+			
+			var px = {
+				x: pin_offset.top + 13,
+				y: pin_offset.left + 13
+			};
+			
+			var e_angle = Math.atan2(px.y - p2.y, px.x - p2.x) * 180 / Math.PI,
+				final_e_ang = parseInt((180-card_angle)+(e_angle*-1));
 
-        if(e_angle < 0){
-          e_angle = e_angle+360;
-          final_e_ang = 360-(360-final_e_ang);
-        } 
+			if(e_angle < 0){
+			  e_angle = e_angle+360;
+			  final_e_ang = 360-(360-final_e_ang);
+			} 
 
-        if(final_e_ang < 0 || final_e_ang == e_angle){
-          final_e_ang = final_e_ang+360;
-        }
-
-        if(final_e_ang == 540){
-          final_e_ang = 180;
-        }
-		
-        var ax = px.x - p2.x;
-        var bx = px.y - p2.y;
-
-        distx = Math.sqrt(ax*ax + bx*bx);
-		
-		object.find('.addons').attr('data-wrap_angle', (180 + e_angle*-1)).css({'transform': 'rotate('+(180 + e_angle*-1)+'deg)'});
-		object.find('.addons .extra_outlet').css({'height': (distx*scale_factor/2)*(zoomer)/(scale_factor*zoomer)-26+'px'});
-
-
-		var card_id = options.find('.object_card_wrap').attr('data-card_id');
-		
-		if(card_id == card_id_full){
-			if(extra_type == '5'){
-				object.find('.addons .extra_outlet').attr('data-angle', '0');
-				options.find('.extra_outlet').attr('data-angle', '0');
-				object.attr('data-angle', final_e_ang);
-			} else {
-				object.find('.addons .extra_outlet').attr('data-angle', final_e_ang);
-				options.find('.extra_outlet').attr('data-angle', final_e_ang);
+			if(final_e_ang < 0 || final_e_ang == e_angle){
+			  final_e_ang = final_e_ang+360;
 			}
-		}
 
-	}
+			if(final_e_ang == 540){
+			  final_e_ang = 180;
+			}
+			
+			var ax = px.x - p2.x;
+			var bx = px.y - p2.y;
+
+			distx = Math.sqrt(ax*ax + bx*bx);
+
+			extra_outlet.attr('data-wrap_angle', (180 + e_angle*-1)).css({'height': (distx*scale_factor/2)*(zoomer)/(scale_factor*zoomer)+'px', 'transform': 'rotate('+(360 - e_angle)+'deg)'});
+
+			if(extra_type == '5'){
+				extra_outlet.attr('data-angle', '0');
+				card_angle = final_e_ang;
+			} else {
+				extra_outlet.attr('data-angle', final_e_ang);
+			}
+			
+
+		pin_counter++;
+		
+	});
 
     
     if (typeof card_outlet_data !== undefined && card_outlet_data.length > 0) {
@@ -803,7 +792,7 @@ function recalc() {
         var target_ang = parseInt(target.attr('data-angle'));
 		
 		if(target.find('.addons .extra_outlet[data-type="5"]').length !== 0){
-			target_ang = parseInt(target.find('.addons').attr('data-wrap_angle'));
+			target_ang = parseInt(target.find('.addons .extra_outlet[data-type="5"]').attr('data-wrap_angle'));
 			
 			if(target_ang < 0){target_ang = target_ang+360}
 		} 
@@ -896,8 +885,7 @@ function recalc() {
         });
 
       }
-      
-	pin_counter++;
+
 	
   });
 
@@ -1299,12 +1287,15 @@ function showPage(page_no) {
       } else {
 
 		if(new_obj.hasClass('outsider_marker')){
-			$('.add_outsider_obj').attr('data-dl', map_lp).attr('data-dt', map_tp).show();
 			
-			$('.object.active').find('.extra_outlet').attr('data-pos_y', map_tp).attr('data-pos_x', map_lp);
+			var option_parent = new_obj.parents('.outsider_object');
+			option_parent.attr('data-pos_x', map_lp).attr('data-pos_y', map_tp);
+
+
+			menu_to_source($('.object.active'));
+			
 			recalc();
-			
-        setTimeout(function(){recalc();}, 500);
+			setTimeout(function(){recalc();}, 500);
 			
         } else if(new_obj.hasClass('obj_eraser')){
             body.addClass('message').attr('data-message', 'Valitse ensin objekti jonka haluat poistaa!');
@@ -1320,90 +1311,6 @@ function showPage(page_no) {
 
     return false;
 
-	});
-
-// outsider object
-
-	$(document).on('click', '.add_outside_connection', function(e) {
-		e.preventDefault();
-		inlet_from_outside_menu($('.outsider_inlet').attr('data-card_id'));
-	});
-  
-	function inlet_from_outside_menu(chamber_code) {
-
-
-		var chamber_id = chamber_code;
-		var available_inlets_extra = helper.category_and_children(helper.find_category_by_path(['yhde', 'tulo_tai_poisto'])), inlets = '';
-
-
-		api.wellingredients(
-			chamber_id,
-			function(o) {
-				var inlets_extra_json = helper.filter_ingredients_by_categories(o, available_inlets_extra);
-				
-				$.each(inlets_extra_json, function(i, item) {
-					inlets += '<option value="'+inlets_extra_json[i].code+'" data-necessity="'+inlets_extra_json[i].necessity+'" data-outlet_diameter="'+inlets_extra_json[i].diameter+'" data-outlet_amount="'+inlets_extra_json[i].amount+'" data-outlet_unit="'+inlets_extra_json[i].unit+'">'+inlets_extra_json[i].name.toUpperCase()+'</option>';
-				});
-
-			var extra_type5 = '';
-			
-				if(options.find('.outlet_options').length == 0){
-					extra_type5 = '<label><input type="radio" name="inlet_type" value="5">Poisto</label>';
-				}
-				
-			 var outsider_content = '<div class="details_title">Yhde: </div>'+
-									'<select name="outsider_obj">'+
-										inlets+
-									'</select>'+
-									'<div><div class="details_title">V.juoksusta: </div><input type="number" name="outsider_height" value="0"></div>'+
-									'<div><label><input type="radio" name="inlet_type" value="4" checked>Tulo</label>'+extra_type5+'</div>'+
-									'<a class="tag outsider_marker" data-warning_msg="Klikkaa kartalta ulkopuolisen yhteen kohde!" href="#">Merkitse ulkopuolisen yhteen kohde</a>'+
-									'<a style="display:none;" class="btn add_outsider_obj" href="#">Lisää tästä</a>';
-
-				$('.outsider_object').html(outsider_content);
-
-			}
-		);
-
-	}
-
-	$(document).on('click', '.add_outsider_obj', function(e) {
-		e.preventDefault();
-
-		var o_code = $('[name="outsider_obj"]').val(),
-			o_amount = $('[name="outsider_obj"] option:selected').attr('data-outlet_amount'),
-			o_title = $('[name="outsider_obj"] option:selected').text(),
-			o_height = $('[name="outsider_height"]').val(),
-			o_type = $('[name="inlet_type"]:checked').val(),
-			o_angle = 0,
-			o_drop = 0,
-			o_pos_l = $('.add_outsider_obj').attr('data-dl'),
-			o_pos_t = $('.add_outsider_obj').attr('data-dt');
-
-		var extra_obj = '<div class="extra_outlet" data-type="'+o_type+'" data-title="'+o_title+'" data-pos_y="'+o_pos_t+'" data-pos_x="'+o_pos_l+'" data-code="'+o_code+'" data-amount="'+o_amount+'" data-height="'+o_height+'" data-angle="'+o_angle+'" data-drop="'+o_drop+'"></div>';
-		
-		$('.outsider_object').html('<div class="extra_outlet_wrap">'+extra_obj+'</div><a class="tag outsider_marker" data-warning_msg="Klikkaa kartalta ulkopuolisen yhteen kohde!" href="#">Muuta ulkopuolisen yhteen kohdetta</a><a href="#" class="btn remove_outsider_obj">Poista yhde</a>');
-		$('.object.active').find('.addons').append(extra_obj).attr('data-wrap_angle', '0');
-		
-		if(o_type == 5){
-			body.addClass('prevent_outs');
-		}
-		
-		recalc();
-		setTimeout(function(){recalc();}, 500);
-
-	});
-
-	$(document).on('click', '.remove_outsider_obj', function(e) {
-		e.preventDefault();
-		$('.outsider_object').html('<a href="#" class="btn add_outside_connection">Lisää ulkopuolinen yhde</a>');
-		$('.object.active').find('.addons .extra_outlet').remove();
-		
-		body.removeClass('prevent_outs');
-		
-		recalc();
-		setTimeout(function(){recalc();}, 500);
-		
 	});
 
 
@@ -1441,19 +1348,74 @@ function create_menu_from_source(current) {
                 '<div class="card_title">'+card_title+'</div>'+ 
                 '<a href="#" data-warning_msg="Huom. Olet kopioimassa nykyistä korttia!" class="tag">Valitse kortti kopioitavaksi</a>'+
                 '<div class="details">'+
-                '<div class="detail_1"><div class="details_title">kaivonumero/id:</div><input data-source="'+card_id_full+'" data-card_type="'+card_type+'" class="details_id" type="text" name="kid" autocomplete="off" value="'+card_id+'"></div>'+
+                '<div class="detail_1"><div class="details_title">kaivonumero/id:</div><input data-source="'+card_id_full+'" data-card_type="'+card_type+'" class="details_id" type="text" name="kid" autocomplete="off" value="'+card_id+'"><br><span>(Kirjoita vain numero, kaivotyyppi tulee automaattisesti)</span></div>'+
                 '<div class="detail_4"><div class="details_title">&#8593; maanpinta:</div><input class="details_upper_m" type="number" name="upper" autocomplete="off" value="'+card_top_pin+'"></div>'+
                 '<div class="detail_5"><div class="details_title">&#8595; v.juoksu:</div><input class="details_lower_m" type="number" name="lower" autocomplete="off" value="'+card_bottom_pin+'"></div>'+
                       
-                '<div class="detail_6"><div class="details_title">sakkapesä:</div><input class="details_chamber" type="number" name="chamber" autocomplete="off" value="'+card_chamber+'"><span>m</span></div>'+
+                '<div class="detail_6"><div class="details_title">sakkapesä:</div><input class="details_chamber" type="number" name="chamber" step="0.1" min="0" autocomplete="off" value="'+card_chamber+'"><span>m</span></div>'+
 
                 '<div class="inlet_outlet_placeholder"></div>'+
-                  
 
                 '<div class="multi_selector_wrap"></div>'+
-				
 
-				'<div class="outsider_inlet" data-card_id="'+card_identifier+'"><div class="details_title">Ulkopuolinen yhde:</div><div class="outsider_object"></div></div>'+
+				'<div class="outsider_wrap">'+
+					'<div class="outsider_inlets">'+
+						'<div class="details_title">Ulkopuoliset yhteet:</div>'+
+
+						'<div class="outsider_object outsider_out" data-index="0" data-type="5" data-pos_x="0" data-pos_y="0">'+
+							'<div class="details_title">Poisto:</div>'+
+							'<div class="option_wrap">'+
+								'<select class="outsider_object_select" name="outsider_object_select1">'+
+									'<option selected value="0">ei mitään</option>'+
+
+								'</select>'+
+								
+								'<div><div class="details_title">V.juoksusta: </div><input type="number" min="0" class="outsider_object_height" name="outsider_object_height1" value="0" disabled><span>cm</span></div>'+
+							'</div>'+
+							'<a class="tag outsider_marker" data-warning_msg="Klikkaa kartalta ulkopuolisen yhteen kohde!" href="#">Merkitse ulkopuolisen yhteen kohde</a>'+
+						'</div>'+
+
+						'<div class="outsider_object outsider_inlet1" data-index="1" data-type="4" data-pos_x="0" data-pos_y="0">'+
+							'<div class="details_title">Tulo 1:</div>'+
+							'<div class="option_wrap">'+
+								'<select class="outsider_object_select" name="outsider_object_select2">'+
+									'<option selected value="0">ei mitään</option>'+
+
+								'</select>'+
+								
+								'<div><div class="details_title">V.juoksusta: </div><input type="number" min="0" class="outsider_object_height" name="outsider_object_height2" value="0"><span>cm</span></div>'+
+							'</div>'+
+							'<a class="tag outsider_marker" data-warning_msg="Klikkaa kartalta ulkopuolisen yhteen kohde!" href="#">Merkitse ulkopuolisen yhteen kohde</a>'+
+						'</div>'+
+
+						'<div class="outsider_object outsider_inlet2" data-index="2" data-type="4" data-pos_x="0" data-pos_y="0">'+
+							'<div class="details_title">Tulo 2:</div>'+
+							'<div class="option_wrap">'+
+								'<select class="outsider_object_select" name="outsider_object_select3">'+
+									'<option selected value="0">ei mitään</option>'+
+
+								'</select>'+
+								
+								'<div><div class="details_title">V.juoksusta: </div><input type="number" min="0" class="outsider_object_height" name="outsider_object_height3" value="0"><span>cm</span></div>'+
+							'</div>'+
+							'<a class="tag outsider_marker" data-warning_msg="Klikkaa kartalta ulkopuolisen yhteen kohde!" href="#">Merkitse ulkopuolisen yhteen kohde</a>'+
+						'</div>'+
+
+						'<div class="outsider_object outsider_inlet3" data-index="3" data-type="4" data-pos_x="0" data-pos_y="0">'+
+							'<div class="details_title">Tulo 3:</div>'+
+							'<div class="option_wrap">'+
+								'<select class="outsider_object_select" name="outsider_object_select4">'+
+									'<option selected value="0">ei mitään</option>'+
+
+								'</select>'+
+								
+								'<div><div class="details_title">V.juoksusta: </div><input type="number" min="0" class="outsider_object_height" name="outsider_object_height4" value="0"><span>cm</span></div>'+
+							'</div>'+
+							'<a class="tag outsider_marker" data-warning_msg="Klikkaa kartalta ulkopuolisen yhteen kohde!" href="#">Merkitse ulkopuolisen yhteen kohde</a>'+
+						'</div>'+
+
+					'</div>'+
+				'</div>'+
 				
                 '<div class="total_inlets"></div>'+
                     
@@ -1462,7 +1424,6 @@ function create_menu_from_source(current) {
                 '</div>');
   
   options.html(create_card);
-
 
   //multi options
   var sakka = helper.category_and_children(helper.find_category_by_path(['sakkapesa'])), sakka_opt = '';
@@ -1485,120 +1446,126 @@ function create_menu_from_source(current) {
       tupla = helper.category_and_children(helper.find_category_by_path(['runko', 'tupla'])),
       rungon_osat_opt = '';
   
-  var available_outlets = helper.category_and_children(helper.find_category_by_path(['yhde', 'poisto'])), outlets = '';
+  var available_outlets = helper.category_and_children(helper.find_category_by_path(['yhde', 'poisto'])), outlets = '', outsider_inlets = '';
   var available_outlets_extra = helper.category_and_children(helper.find_category_by_path(['yhde', 'tulo_tai_poisto']));
   
-      api.wellingredients(
-          card_identifier,
-          function(o) {
+	api.wellingredients(
+		card_identifier,
+		function(o) {
             
-          var sakka_json = helper.filter_ingredients_by_categories(o, sakka),
-              teleskooppi_json = helper.filter_ingredients_by_categories(o, teleskooppi),
-              kansi_json = helper.filter_ingredients_by_categories(o, kansi),
-              venttiili_json = helper.filter_ingredients_by_categories(o, venttiili),
-              pohja_json = helper.filter_ingredients_by_categories(o, pohja),
-              lisavaruste_json = helper.filter_ingredients_by_categories(o, lisavaruste),
-              outlets_json = helper.filter_ingredients_by_categories(o, available_outlets),
-              outlets_extra_json = helper.filter_ingredients_by_categories(o, available_outlets_extra);
+		var sakka_json = helper.filter_ingredients_by_categories(o, sakka),
+			teleskooppi_json = helper.filter_ingredients_by_categories(o, teleskooppi),
+			kansi_json = helper.filter_ingredients_by_categories(o, kansi),
+			venttiili_json = helper.filter_ingredients_by_categories(o, venttiili),
+			pohja_json = helper.filter_ingredients_by_categories(o, pohja),
+			lisavaruste_json = helper.filter_ingredients_by_categories(o, lisavaruste),
+			outlets_json = helper.filter_ingredients_by_categories(o, available_outlets),
+			outlets_extra_json = helper.filter_ingredients_by_categories(o, available_outlets_extra);
             
             
-          var runkoputki_jenga_json = helper.filter_ingredients_by_categories(o, runkoputki_jenga),
-              runkoputki_massiivi_json = helper.filter_ingredients_by_categories(o, runkoputki_massiivi);
+		var runkoputki_jenga_json = helper.filter_ingredients_by_categories(o, runkoputki_jenga),
+			runkoputki_massiivi_json = helper.filter_ingredients_by_categories(o, runkoputki_massiivi);
             
-          var aihio_json = helper.filter_ingredients_by_categories(o, aihio),
-              kartio_json = helper.filter_ingredients_by_categories(o, kartio),
-              roto_json = helper.filter_ingredients_by_categories(o, roto),
-              tupla_json = helper.filter_ingredients_by_categories(o, tupla);
+		var aihio_json = helper.filter_ingredients_by_categories(o, aihio),
+			kartio_json = helper.filter_ingredients_by_categories(o, kartio),
+			roto_json = helper.filter_ingredients_by_categories(o, roto),
+			tupla_json = helper.filter_ingredients_by_categories(o, tupla);
 
   
-              $.each(sakka_json, function(i, item) {
-                  var json_val = encodeURIComponent(JSON.stringify({"code": sakka_json[i].code, "amount": sakka_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
-                  sakka_opt += '<label><input type="checkbox" data-necessity="'+sakka_json[i].necessity+'" data-id="'+sakka_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+sakka_json[i].unit+'">'+sakka_json[i].name+'</label>';
-              });
+			$.each(sakka_json, function(i, item) {
+			var json_val = encodeURIComponent(JSON.stringify({"code": sakka_json[i].code, "amount": sakka_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
+				sakka_opt += '<label><input type="checkbox" data-necessity="'+sakka_json[i].necessity+'" data-id="'+sakka_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+sakka_json[i].unit+'">'+sakka_json[i].name+'</label>';
+			});
 
-              $.each(teleskooppi_json, function(i, item) {
-                  var json_val = encodeURIComponent(JSON.stringify({"code": teleskooppi_json[i].code, "amount": teleskooppi_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
-                  teleskooppi_opt += '<label><input type="checkbox" data-necessity="'+teleskooppi_json[i].necessity+'" data-id="'+teleskooppi_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+teleskooppi_json[i].unit+'">'+teleskooppi_json[i].name+'</label>';
-              });
+			$.each(teleskooppi_json, function(i, item) {
+			var json_val = encodeURIComponent(JSON.stringify({"code": teleskooppi_json[i].code, "amount": teleskooppi_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
+				teleskooppi_opt += '<label><input type="checkbox" data-necessity="'+teleskooppi_json[i].necessity+'" data-id="'+teleskooppi_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+teleskooppi_json[i].unit+'">'+teleskooppi_json[i].name+'</label>';
+			});
 
-              $.each(kansi_json, function(i, item) {
-                  var json_val = encodeURIComponent(JSON.stringify({"code": kansi_json[i].code, "amount": kansi_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
-                  kansi_opt += '<label><input type="checkbox" data-necessity="'+kansi_json[i].necessity+'" data-id="'+kansi_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+kansi_json[i].unit+'">'+kansi_json[i].name+'</label>';
-              });
+			$.each(kansi_json, function(i, item) {
+			var json_val = encodeURIComponent(JSON.stringify({"code": kansi_json[i].code, "amount": kansi_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
+				kansi_opt += '<label><input type="checkbox" data-necessity="'+kansi_json[i].necessity+'" data-id="'+kansi_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+kansi_json[i].unit+'">'+kansi_json[i].name+'</label>';
+			});
             
               //runko loop
-              $.each(runkoputki_jenga_json, function(i, item) {
-                  var json_val = encodeURIComponent(JSON.stringify({"code": runkoputki_jenga_json[i].code, "amount": runkoputki_jenga_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
-                  runkoputki_opt += '<label><input type="checkbox" name="frame" data-frame_unit="'+runkoputki_jenga_json[i].unit+'" data-frame_diameter="'+runkoputki_jenga_json[i].diameter+'" data-frame_amount="'+runkoputki_jenga_json[i].amount+'" data-necessity="'+runkoputki_jenga_json[i].necessity+'" data-id="'+runkoputki_jenga_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+runkoputki_jenga_json[i].unit+'">'+runkoputki_jenga_json[i].name+'</label>';
-              });
+			$.each(runkoputki_jenga_json, function(i, item) {
+			var json_val = encodeURIComponent(JSON.stringify({"code": runkoputki_jenga_json[i].code, "amount": runkoputki_jenga_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
+				runkoputki_opt += '<label><input type="checkbox" name="frame" data-frame_unit="'+runkoputki_jenga_json[i].unit+'" data-frame_diameter="'+runkoputki_jenga_json[i].diameter+'" data-frame_amount="'+runkoputki_jenga_json[i].amount+'" data-necessity="'+runkoputki_jenga_json[i].necessity+'" data-id="'+runkoputki_jenga_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+runkoputki_jenga_json[i].unit+'">'+runkoputki_jenga_json[i].name+'</label>';
+			});
             
-              $.each(runkoputki_massiivi_json, function(i, item) {
-                  var json_val = encodeURIComponent(JSON.stringify({"code": runkoputki_massiivi_json[i].code, "amount": runkoputki_massiivi_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
-                  runkoputki_opt += '<label><input type="checkbox" name="frame" data-frame_unit="'+runkoputki_massiivi_json[i].unit+'" data-frame_diameter="'+runkoputki_massiivi_json[i].diameter+'" data-frame_amount="'+runkoputki_massiivi_json[i].amount+'" data-necessity="'+runkoputki_massiivi_json[i].necessity+'" data-id="'+runkoputki_massiivi_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+runkoputki_massiivi_json[i].unit+'">'+runkoputki_massiivi_json[i].name+'</label>';
-              });
+			$.each(runkoputki_massiivi_json, function(i, item) {
+			var json_val = encodeURIComponent(JSON.stringify({"code": runkoputki_massiivi_json[i].code, "amount": runkoputki_massiivi_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
+				runkoputki_opt += '<label><input type="checkbox" name="frame" data-frame_unit="'+runkoputki_massiivi_json[i].unit+'" data-frame_diameter="'+runkoputki_massiivi_json[i].diameter+'" data-frame_amount="'+runkoputki_massiivi_json[i].amount+'" data-necessity="'+runkoputki_massiivi_json[i].necessity+'" data-id="'+runkoputki_massiivi_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+runkoputki_massiivi_json[i].unit+'">'+runkoputki_massiivi_json[i].name+'</label>';
+			});
 
-            
-            
               //rungon osat loop
-              $.each(aihio_json, function(i, item) {
-                  var json_val = encodeURIComponent(JSON.stringify({"code": aihio_json[i].code, "amount": aihio_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
-                  rungon_osat_opt += '<label><input type="checkbox" data-necessity="'+aihio_json[i].necessity+'" data-id="'+aihio_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+aihio_json[i].unit+'">'+aihio_json[i].name+'</label>';
-              });
+			$.each(aihio_json, function(i, item) {
+			var json_val = encodeURIComponent(JSON.stringify({"code": aihio_json[i].code, "amount": aihio_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
+				rungon_osat_opt += '<label><input type="checkbox" data-necessity="'+aihio_json[i].necessity+'" data-id="'+aihio_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+aihio_json[i].unit+'">'+aihio_json[i].name+'</label>';
+			});
             
-              $.each(kartio_json, function(i, item) {
-                  var json_val = encodeURIComponent(JSON.stringify({"code": kartio_json[i].code, "amount": kartio_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
-                  rungon_osat_opt += '<label><input type="checkbox" data-necessity="'+kartio_json[i].necessity+'" data-id="'+kartio_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+kartio_json[i].unit+'">'+kartio_json[i].name+'</label>';
-              });
+			$.each(kartio_json, function(i, item) {
+			var json_val = encodeURIComponent(JSON.stringify({"code": kartio_json[i].code, "amount": kartio_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
+				rungon_osat_opt += '<label><input type="checkbox" data-necessity="'+kartio_json[i].necessity+'" data-id="'+kartio_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+kartio_json[i].unit+'">'+kartio_json[i].name+'</label>';
+			});
             
-              $.each(roto_json, function(i, item) {
-                  var json_val = encodeURIComponent(JSON.stringify({"code": roto_json[i].code, "amount": roto_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
-                  rungon_osat_opt += '<label><input type="checkbox" data-necessity="'+roto_json[i].necessity+'" data-id="'+roto_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+roto_json[i].unit+'">'+roto_json[i].name+'</label>';
-              });
+			$.each(roto_json, function(i, item) {
+			var json_val = encodeURIComponent(JSON.stringify({"code": roto_json[i].code, "amount": roto_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
+				rungon_osat_opt += '<label><input type="checkbox" data-necessity="'+roto_json[i].necessity+'" data-id="'+roto_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+roto_json[i].unit+'">'+roto_json[i].name+'</label>';
+			});
             
-              $.each(tupla_json, function(i, item) {
-                  var json_val = encodeURIComponent(JSON.stringify({"code": tupla_json[i].code, "amount": tupla_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
-                  rungon_osat_opt += '<label><input type="checkbox" data-necessity="'+tupla_json[i].necessity+'" data-id="'+tupla_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+tupla_json[i].unit+'">'+tupla_json[i].name+'</label>';
-              });
-            
-            
-            
-              $.each(venttiili_json, function(i, item) {
-                  var json_val = encodeURIComponent(JSON.stringify({"code": venttiili_json[i].code, "amount": venttiili_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
-                  venttiili_opt += '<label><input type="checkbox" data-necessity="'+venttiili_json[i].necessity+'" data-id="'+venttiili_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+venttiili_json[i].unit+'">'+venttiili_json[i].name+'</label>';
-              });
-            
-              $.each(pohja_json, function(i, item) {
-                  var json_val = encodeURIComponent(JSON.stringify({"code": pohja_json[i].code, "amount": pohja_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
-                  pohja_opt += '<label><input type="checkbox" data-necessity="'+pohja_json[i].necessity+'" data-id="'+pohja_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+pohja_json[i].unit+'">'+pohja_json[i].name+'</label>';
-              });
-            
-              $.each(lisavaruste_json, function(i, item) {
-                  var json_val = encodeURIComponent(JSON.stringify({"code": lisavaruste_json[i].code, "amount": lisavaruste_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
-                  lisavaruste_opt += '<label><input type="checkbox" data-necessity="'+lisavaruste_json[i].necessity+'" data-id="'+lisavaruste_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+lisavaruste_json[i].unit+'">'+lisavaruste_json[i].name+'</label>';
-              });
+			$.each(tupla_json, function(i, item) {
+			var json_val = encodeURIComponent(JSON.stringify({"code": tupla_json[i].code, "amount": tupla_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
+				rungon_osat_opt += '<label><input type="checkbox" data-necessity="'+tupla_json[i].necessity+'" data-id="'+tupla_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+tupla_json[i].unit+'">'+tupla_json[i].name+'</label>';
+			});
 
-              $.each(outlets_json, function(i, item) {
-                  outlets += '<option class="primary" value="'+outlets_json[i].code+'" data-necessity="'+outlets_json[i].necessity+'" data-outlet_diameter="'+outlets_json[i].diameter+'" data-outlet_amount="'+outlets_json[i].amount+'" data-outlet_unit="'+outlets_json[i].unit+'">'+outlets_json[i].name.toUpperCase()+'</option>';
-              });
+			$.each(venttiili_json, function(i, item) {
+			var json_val = encodeURIComponent(JSON.stringify({"code": venttiili_json[i].code, "amount": venttiili_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
+				venttiili_opt += '<label><input type="checkbox" data-necessity="'+venttiili_json[i].necessity+'" data-id="'+venttiili_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+venttiili_json[i].unit+'">'+venttiili_json[i].name+'</label>';
+			});
             
-              $.each(outlets_extra_json, function(i, item) {
-                  outlets += '<option value="'+outlets_extra_json[i].code+'" data-necessity="'+outlets_extra_json[i].necessity+'" data-outlet_diameter="'+outlets_extra_json[i].diameter+'" data-outlet_amount="'+outlets_extra_json[i].amount+'" data-outlet_unit="'+outlets_extra_json[i].unit+'">'+outlets_extra_json[i].name.toUpperCase()+'</option>';
-              });
-  
-    if(sakka_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Sakkapesä:</span></div>'+sakka_opt+'</div>');}
-    if(teleskooppi_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Teleskooppi:</span></div>'+teleskooppi_opt+'</div>');}
-    if(kansi_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Kansi/yläosa:</span></div>'+kansi_opt+'</div>');} 
-    if(runkoputki_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="radio_wrap"><div class="details_title"><span>Runko/nousuputki:</span></div>'+runkoputki_opt+'</div>');} 
-    if(rungon_osat_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Rungon osat:</span></div>'+rungon_osat_opt+'</div>');} 
-    if(venttiili_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Vesilukko:</span></div>'+venttiili_opt+'</div>');}
-    if(pohja_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Pohja:</span></div>'+pohja_opt+'</div>');}
-    if(lisavaruste_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Lisävarusteet:</span></div>'+lisavaruste_opt+'</div>');}
+			$.each(pohja_json, function(i, item) {
+			var json_val = encodeURIComponent(JSON.stringify({"code": pohja_json[i].code, "amount": pohja_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
+				pohja_opt += '<label><input type="checkbox" data-necessity="'+pohja_json[i].necessity+'" data-id="'+pohja_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+pohja_json[i].unit+'">'+pohja_json[i].name+'</label>';
+			});
+            
+			$.each(lisavaruste_json, function(i, item) {
+			var json_val = encodeURIComponent(JSON.stringify({"code": lisavaruste_json[i].code, "amount": lisavaruste_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
+				lisavaruste_opt += '<label><input type="checkbox" data-necessity="'+lisavaruste_json[i].necessity+'" data-id="'+lisavaruste_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+lisavaruste_json[i].unit+'">'+lisavaruste_json[i].name+'</label>';
+			});
 
-// if(sakka_json.length == 0){options.find('.detail_6').hide();}
+			$.each(outlets_json, function(i, item) {
+				outlets += '<option class="primary" value="'+outlets_json[i].code+'" data-necessity="'+outlets_json[i].necessity+'" data-outlet_diameter="'+outlets_json[i].diameter+'" data-outlet_amount="'+outlets_json[i].amount+'" data-outlet_unit="'+outlets_json[i].unit+'">'+outlets_json[i].name.toUpperCase()+'</option>';
+			});
+            
+			$.each(outlets_extra_json, function(i, item) {
+				outsider_inlets += '<option value="'+outlets_extra_json[i].code+'" data-necessity="'+outlets_extra_json[i].necessity+'" data-outlet_diameter="'+outlets_extra_json[i].diameter+'" data-outlet_amount="'+outlets_extra_json[i].amount+'" data-outlet_unit="'+outlets_extra_json[i].unit+'">'+outlets_extra_json[i].name.toUpperCase()+'</option>';
+
+			});
+
+			outlets += outsider_inlets;
+			
+		if(sakka_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Sakkapesä:</span></div>'+sakka_opt+'</div>');}
+		if(teleskooppi_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Teleskooppi:</span></div>'+teleskooppi_opt+'</div>');}
+		if(kansi_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Kansi/yläosa:</span></div>'+kansi_opt+'</div>');} 
+		if(runkoputki_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="radio_wrap"><div class="details_title"><span>Runko/nousuputki:</span></div>'+runkoputki_opt+'</div>');} 
+		if(rungon_osat_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Rungon osat:</span></div>'+rungon_osat_opt+'</div>');} 
+		if(venttiili_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Vesilukko:</span></div>'+venttiili_opt+'</div>');}
+		if(pohja_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Pohja:</span></div>'+pohja_opt+'</div>');}
+		if(lisavaruste_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Lisävarusteet:</span></div>'+lisavaruste_opt+'</div>');}
+
+		if(card_type == 'JVTK' || card_type == 'TP'){options.find('.detail_6').hide();}
+
+
+		options.find('.outsider_out .outsider_object_select').append(outlets);
+		options.find('.outsider_inlet1 .outsider_object_select').append(outsider_inlets);
+		options.find('.outsider_inlet2 .outsider_object_select').append(outsider_inlets);
+		options.find('.outsider_inlet3 .outsider_object_select').append(outsider_inlets);
+
 
 // if new card, use default values
-    if(card.hasClass('fresh_card')){
-        var orig_frame = card.find('.original_frame').attr('data-id');
+	if(card.hasClass('fresh_card')){
+		var orig_frame = card.find('.original_frame').attr('data-id');
     
         options.find('.radio_wrap [data-id="'+orig_frame+'"]').prop('checked',true);
         options.find('.multi_selector_wrap').each(function() {
@@ -1616,89 +1583,102 @@ function create_menu_from_source(current) {
     }
   
 
-  if (card_target.length > 0) {
+	if (card_target.length > 0) {
 
-  $.each(target_array,function(i){
-    
-    
-  var checkpoint = '<a href="#" data-warning_msg="Huom. Olet asettamassa etappia kaivojen välille, merkitse etappi poispäin kohdekaivosta ('+target_array[i]+')!" class="tag create_checkpoint inactive" data-current_count="1" data-ownid="'+card_id_full+'" data-target="'+target_array[i]+'">Etappimerkintä kaivojen välille &rarrw;</a>';
-  
-  if($('.object[data-id_full="'+card_target+'"]').hasClass('ghost')){checkpoint = '';}
-    
-  var outlet_option = $('<div class="outlet_options" data-ownid="'+card_id_full+'" data-target="'+target_array[i]+'">'+
-                      '<div class="details_title"><span>Poiston tyyppi:</span></div>'+
-                      '<select class="details_outlet" name="outlet">'+
-                      '<option selected disabled hidden value="ei valittu" data-outlet_diameter="ei valittu" data-outlet_amount="ei valittu" data-outlet_unit="ei valittu">ei valittu</option>'+
-                      outlets+
-                      '</select>'+
-                      '<div class="details_outlet_len_wrap"><div class="details_title"><span>Pituus/määrä:</span></div><input class="num_field details_outlet_len" type="text" name="outlet_len" autocomplete="off" value="1" disabled><span class="outlet_unit">kpl</span></div>'+
-                      
-                      '<div><div class="details_title"><span>V.juoksusta:</span></div><input class="num_field details_out_height" type="text" name="oheight" value="0" disabled><span>cm</span></div>'+
-                      checkpoint+
-                      '</div>');
+		$.each(target_array,function(i){
 
-    if (i >= 1) {
-        outlet_option.find('.details_outlet option.primary').remove();
-		outlet_option.find('.details_out_height').removeAttr('disabled');
-    }
-    
-    if (card_outlet_data.length > 0 && card_outlet_data[i] !== undefined) {
-        if (card_outlet_data[i][0] !== 'null') {
-            outlet_option.find('.details_outlet option').removeAttr('selected');
-            outlet_option.find('.details_outlet option[value="'+card_outlet_data[i][0]+'"]').attr('selected','selected').prop('selected',true);
-            outlet_option.find('.outlet_unit').text(card_outlet_data[i][2]);
-            outlet_option.find('.details_outlet_len').val(card_outlet_data[i][3]);
-            outlet_option.find('.create_checkpoint').removeClass('inactive');
-        }
-    }
+		var checkpoint = '<a href="#" data-warning_msg="Huom. Olet asettamassa etappia kaivojen välille, merkitse etappi poispäin kohdekaivosta ('+target_array[i]+')!" class="tag create_checkpoint inactive" data-current_count="1" data-ownid="'+card_id_full+'" data-target="'+target_array[i]+'">Etappimerkintä kaivojen välille &rarrw;</a>';
+	  
+		if($('.object[data-id_full="'+card_target+'"]').hasClass('ghost')){checkpoint = '';}
+		
+		var outlet_option = $('<div class="outlet_options" data-ownid="'+card_id_full+'" data-target="'+target_array[i]+'">'+
+							'<div class="details_title">Poiston tyyppi:</div>'+
+							'<select class="details_outlet" name="outlet">'+
+							'<option selected disabled hidden value="ei valittu" data-outlet_diameter="ei valittu" data-outlet_amount="ei valittu" data-outlet_unit="ei valittu">ei valittu</option>'+
+							outlets+
+							'</select>'+
+							'<div class="details_outlet_len_wrap"><div class="details_title">Pituus/määrä:</div><input class="details_outlet_len" type="number" name="outlet_len" min="0" autocomplete="off" value="1" disabled><span class="outlet_unit">kpl</span></div>'+
+						  
+							'<div><div class="details_title">V.juoksusta:</div><input class="details_out_height" type="number" name="oheight" min="0" value="0" disabled><span>cm</span></div>'+
+							checkpoint+
+						'</div>');
 
-    options.find('.inlet_outlet_placeholder').append(outlet_option);
-  
-    if(card_target.split(',').length > 1){
-        options.find('.create_checkpoint').remove();
+			if (i >= 1) {
+				outlet_option.find('.details_outlet option.primary').remove();
+				outlet_option.find('.details_out_height').removeAttr('disabled');
+			}
+		
+			if (card_outlet_data.length > 0 && card_outlet_data[i] !== undefined) {
+				if (card_outlet_data[i][0] !== 'null') {
+					outlet_option.find('.details_outlet option').removeAttr('selected');
+					outlet_option.find('.details_outlet option[value="'+card_outlet_data[i][0]+'"]').attr('selected','selected').prop('selected',true);
+					outlet_option.find('.outlet_unit').text(card_outlet_data[i][2]);
+					outlet_option.find('.details_outlet_len').val(card_outlet_data[i][3]);
+					outlet_option.find('.create_checkpoint').removeClass('inactive');
+				}
+			}
+
+			options.find('.inlet_outlet_placeholder').append(outlet_option);
+		  
+			if(card_target.split(',').length > 1){
+				options.find('.create_checkpoint').remove();
+			}
+
+		});
+		
+		options.find('.outsider_out').remove();
+		
 	}
 
-  }); 
-  }
-
-	card.find('.addons div').not('.extra_outlet').each(function() {
+	card.find('.addons div').each(function() {
 		var addon = $(this),
 		addon_id = addon.attr('data-id');
-		options.find('[data-id="'+addon_id+'"]').prop('checked',true);
+		
+		if(addon.hasClass('extra_outlet')){
+			var extra_outlet_index = addon.attr('data-index'),
+				extra_outlet_code = addon.attr('data-code'),
+				extra_outlet_height = addon.attr('data-height'),
+				extra_outlet_pos_y = addon.attr('data-pos_y'),
+				extra_outlet_pos_x = addon.attr('data-pos_x');
+	
+			var extra_select = options.find('.outsider_object[data-index="'+extra_outlet_index+'"]');
+
+			extra_select.attr('data-pos_y', extra_outlet_pos_y).attr('data-pos_x', extra_outlet_pos_x)
+			
+			extra_select.find('.outsider_object_height').val(extra_outlet_height);
+			
+			extra_select.find('.outsider_object_select option').removeAttr('selected');
+			extra_select.find('.outsider_object_select option[value="'+extra_outlet_code+'"]').attr('selected','selected').prop('selected',true);
+		} else {
+			options.find('[data-id="'+addon_id+'"]').prop('checked',true);
+		}
 	});
-  
-	if(card.find('.addons .extra_outlet').length !== 0){
-		$('.outsider_object').html('<div class="extra_outlet_wrap">' + card.find('.addons .extra_outlet')[0].outerHTML + '</div><a class="tag outsider_marker" data-warning_msg="Klikkaa kartalta ulkopuolisen yhteen kohde!" href="#">Muuta ulkopuolisen yhteen kohdetta</a><a href="#" class="btn remove_outsider_obj">Poista yhde</a>');
-	} else {
-		$('.outsider_object').html('<a href="#" class="btn add_outside_connection">Lisää ulkopuolinen yhde</a>');
-	}
+	
 
-  card.find('.inlet_wrap div').each(function() {
-	  
-  var inpipe = $(this);
-  var total_inlets_data = $('<div class="total_inlets_data">'+      
-                  '<div class="details_title"><span>Tulo, '+inpipe.attr('data-inang')+'&deg;</span></div>'+
-                  '<div>Nimi: '+inpipe.attr('data-inlet_name')+'</div>'+ 
-                  '<div>Koodi: '+inpipe.attr('data-inlet_id')+'</div>'+ 
-                  '<div>V.juoksusta: '+inpipe.attr('data-zip')+'cm</div>'+
-                  '<div>Kaivosta: <a href="#" class="well_link" data-well_link="'+inpipe.attr('data-coming_from')+'">'+inpipe.attr('data-coming_from')+'</a></div>'+
-                  '</div>');
+		card.find('.inlet_wrap div').each(function() {
+			var inpipe = $(this);
+			var total_inlets_data = $('<div class="total_inlets_data">'+      
+									'<div class="details_title">Tulo, '+inpipe.attr('data-inang')+'&deg;</div>'+
+									'<div>Nimi: '+inpipe.attr('data-inlet_name')+'</div>'+ 
+									'<div>Koodi: '+inpipe.attr('data-inlet_id')+'</div>'+ 
+									'<div>V.juoksusta: '+inpipe.attr('data-zip')+'cm</div>'+
+									'<div>Kaivosta: <a href="#" class="well_link" data-well_link="'+inpipe.attr('data-coming_from')+'">'+inpipe.attr('data-coming_from')+'</a></div>'+
+								'</div>');
 
-		$('.total_inlets').append(total_inlets_data);
+				$('.total_inlets').append(total_inlets_data);
+		});
 
-  });  
-
-          spinner.removeClass('active');
+		spinner.removeClass('active');
             
-          }, function(o) {
-              console.log('Failure');
-              spinner.removeClass('active');
-          }
-      );
+	}, function(o) {
+			console.log('Failure');
+			spinner.removeClass('active');
+		}
+	);
   
   
   
-  var available_inlets = helper.category_and_children(helper.find_category_by_path(['yhde', 'tulo_tai_poisto']));
+	var available_inlets = helper.category_and_children(helper.find_category_by_path(['yhde', 'tulo_tai_poisto']));
   
   if (card_target.length > 0) {
       
@@ -1706,50 +1686,48 @@ function create_menu_from_source(current) {
 
     var target_card_identifier = $('.object[data-id_full="'+target_array[i]+'"]').attr('data-identifier'), inlets = ''
     
-      api.wellingredients(
-          target_card_identifier,
-          function(o) {
-              var inlets_json = helper.filter_ingredients_by_categories(o, available_inlets);
-          
-         
-              $.each(inlets_json, function(i, item) {
-                  inlets += '<option value="'+inlets_json[i].code+'" data-necessity="'+inlets_json[i].necessity+'" data-outlet_diameter="'+inlets_json[i].diameter+'" data-outlet_amount="'+inlets_json[i].amount+'" data-outlet_unit="'+inlets_json[i].unit+'">'+inlets_json[i].name.toUpperCase()+'</option>';
-              });
+		api.wellingredients(
+			target_card_identifier,
+			function(o) {
+				var inlets_json = helper.filter_ingredients_by_categories(o, available_inlets);
 
-  var inlet_option = $('<div class="inlets_options" data-ownid="'+card_id_full+'" data-target="'+target_array[i]+'">'+
-                      '<div class="details_title"><span>Tulon tyyppi:</span></div>'+
-                      '<select class="details_inlets" name="inlets">'+
-                      '<option selected disabled hidden value="ei valittu" data-outlet_diameter="ei valittu" data-outlet_amount="ei valittu" data-outlet_unit="ei valittu">ei valittu</option>'+
-                      inlets+
-                      '</select>'+
-                      '<div class="details_inlets_len_wrap"><div class="details_title"><span>Pituus/määrä:</span></div><input class="num_field details_inlets_len" type="text" name="inlets_len" autocomplete="off" value="1" disabled><span class="inlets_unit">kpl</span></div>'+  
-                       
-                      '<div><div class="details_title"><span>V.juoksusta:</span></div><input class="num_field details_out_height" type="text" name="oheight" value="1"><span>cm</span></div>'+
-                       
-                      '</div>');
+				$.each(inlets_json, function(i, item) {
+					inlets += '<option value="'+inlets_json[i].code+'" data-necessity="'+inlets_json[i].necessity+'" data-outlet_diameter="'+inlets_json[i].diameter+'" data-outlet_amount="'+inlets_json[i].amount+'" data-outlet_unit="'+inlets_json[i].unit+'">'+inlets_json[i].name.toUpperCase()+'</option>';
+				});
+
+				var inlet_option = $('<div class="inlets_options" data-ownid="'+card_id_full+'" data-target="'+target_array[i]+'">'+
+								'<div class="details_title">Tulon tyyppi:</div>'+
+								'<select class="details_inlets" name="inlets">'+
+								'<option selected disabled hidden value="ei valittu" data-outlet_diameter="ei valittu" data-outlet_amount="ei valittu" data-outlet_unit="ei valittu">ei valittu</option>'+
+								inlets+
+								'</select>'+
+								'<div class="details_inlets_len_wrap"><div class="details_title">Pituus/määrä:</div><input class="details_inlets_len" type="number" min="0" name="inlets_len" autocomplete="off" value="1" disabled><span class="inlets_unit">kpl</span></div>'+      
+								'<div><div class="details_title">V.juoksusta:</div><input class="details_out_height" type="number" min="0" name="oheight" value="1"><span>cm</span></div>'+  
+							'</div>');
 
 
-  if (card_inlet_data.length > 0 && card_inlet_data[i] !== undefined) {
-    if (card_inlet_data[i][0] !== 'null') {
-      inlet_option.find('.details_inlets option').removeAttr('selected');
-      inlet_option.find('.details_inlets option[value="'+card_inlet_data[i][0]+'"]').attr('selected','selected').prop('selected',true);
-      inlet_option.find('.inlets_unit').text(card_inlet_data[i][2]);
-      inlet_option.find('.details_inlets_len').val(card_inlet_data[i][3]);
-      inlet_option.find('.details_out_height').val(card_inlet_data[i][5]);
-    }
-  }
-
-	options.find('.outlet_options[data-target="'+target_array[i]+'"]').after(inlet_option);
-
-          spinner.removeClass('active');
-            
-          }, function(o) {
-              console.log('Failure');
-              spinner.removeClass('active');
-          }
-      );  
-  }); 
-  } 
+				if (card_inlet_data.length > 0 && card_inlet_data[i] !== undefined) {
+					if (card_inlet_data[i][0] !== 'null') {
+						inlet_option.find('.details_inlets option').removeAttr('selected');
+						inlet_option.find('.details_inlets option[value="'+card_inlet_data[i][0]+'"]').attr('selected','selected').prop('selected',true);
+						inlet_option.find('.inlets_unit').text(card_inlet_data[i][2]);
+						inlet_option.find('.details_inlets_len').val(card_inlet_data[i][3]);
+						inlet_option.find('.details_out_height').val(card_inlet_data[i][5]);
+					}
+				}
+ 
+				setTimeout(function(){
+					options.find('.outlet_options[data-target="'+target_array[i]+'"]').after(inlet_option);
+					spinner.removeClass('active');
+				}, 500);
+ 
+				}, function(o) {
+					console.log('Failure');
+					spinner.removeClass('active');
+				}
+		);  
+		}); 
+	}
 
 }
 
@@ -1901,13 +1879,15 @@ function removeValue(list, value) {
 		menu_to_source(cur_obj);
 		reset_connection(old_id, new_id);
 		menu_to_source(cur_obj);
-	  
+
 		}
 
     } else {
 		menu_to_source(cur_obj);
     }
 
+	setTimeout(function(){recalc();}, 1500);
+	
   });
 
 
@@ -1931,7 +1911,6 @@ function menu_to_source(card) {
 		current.attr('data-id_full', card_id_full);
 	}
 
-  
 	var outlet_options_array = [];
   
     $('.outlet_options').each(function() {
@@ -2017,10 +1996,37 @@ function menu_to_source(card) {
 		current.find('.addons').append('<div data-id="'+radio_id+'" data-code="'+radio_code+'"></div>');
 	});
 
+
+	$('.outsider_object').each(function() {
+		var inlet_wrap = $(this),
+			inlet_type = inlet_wrap.attr('data-type'),
+			inlet_index = inlet_wrap.attr('data-index'),
+			inlet_wrap_pos_t = inlet_wrap.attr('data-pos_x'),
+			inlet_wrap_pos_l = inlet_wrap.attr('data-pos_y'),
+			inlet_height = inlet_wrap.find('.outsider_object_height').val(),
+			inlet_select = inlet_wrap.find('.outsider_object_select'),
+			inlet_selected = inlet_select.find('option:selected'),
+			inlet_selected_val = inlet_selected.val();
+
+		if(inlet_selected_val !== '0' && inlet_wrap_pos_t !== '0' && inlet_wrap_pos_l !== '0'){
+
+			var xtra_dia = inlet_selected.attr('data-outlet_diameter'),
+				xtra_amount = inlet_selected.attr('data-outlet_amount'),
+				xtra_unit = inlet_selected.attr('data-outlet_unit'),
+				xtra_title = inlet_selected.text();
+				
+			var extra_obj = '<div class="extra_outlet" data-index="'+inlet_index+'" data-type="'+inlet_type+'" data-title="'+xtra_title+'" data-pos_y="'+inlet_wrap_pos_l+'" data-pos_x="'+inlet_wrap_pos_t+'" data-code="'+inlet_selected_val+'" data-amount="'+xtra_amount+'" data-height="'+inlet_height+'" data-angle="0" data-drop="0"></div>';
+
+			current.find('.addons').append(extra_obj);
+		}
+
+	});
+	
 	if($('#options').find('.extra_outlet').length !== 0){
 		current.find('.addons').append($('#options').find('.extra_outlet')[0].outerHTML);
 	}
 	
+	recalc();
 	setTimeout(function(){recalc();}, 500);
 }
 
@@ -2068,6 +2074,11 @@ function final_code() {
         fail = true;
         $('#code_warnings').append('<div class="warning_note">'+obj_id_full+': Kohdekaivon tulon tyyppi puuttuu!</div>');
     }
+	
+    if(obj.find('.middle').length == 0 && obj.find('.extra_outlet').length == 0){
+        fail = true;
+		alert('kaivossa '+obj_id_full+' ei ole tuloja eikä poistoja! Lähetys estetty.');
+	}
 
     if(obj_order_id == '-'){
         obj_order_id = '';
@@ -2128,38 +2139,38 @@ function final_code() {
         });
 
 
-    //regular parts
-        obj.find('.addons div').not('.extra_outlet').each(function() {
+        obj.find('.addons div').each(function() {
             var current_addon = $(this),
-                addon_code = JSON.parse(decodeURIComponent(current_addon.attr('data-code')));
+                addon_code = '';
                 
+				
+			if(current_addon.hasClass('extra_outlet')){
+				
+				var e_code = current_addon.attr('data-code'),
+					e_type = current_addon.attr('data-type'),
+					e_index = current_addon.attr('data-index'),
+					e_amount = current_addon.attr('data-amount'),
+					e_height = current_addon.attr('data-height'),
+					e_angle = current_addon.attr('data-angle'),
+					e_drop = current_addon.attr('data-drop'),
+					e_pos_y = current_addon.attr('data-pos_y'),
+					e_pos_x = current_addon.attr('data-pos_x'),
+					e_link_details = encodeURIComponent(JSON.stringify({"index": e_index, "type": e_type, "checkpoints": '['+e_pos_y+','+e_pos_x+']'})),
+					e_id = '';
+					
+					if(current_addon.attr('data-id') !== undefined){
+						e_id = current_addon.attr('data-id');
+					}
+			
+					addon_code = {'code': e_code, 'amount': e_amount, 'height': e_height, 'angle': e_angle, 'drop': e_drop, 'id': e_id, 'link_details': e_link_details};
+					
+			} else {
+				addon_code = JSON.parse(decodeURIComponent(current_addon.attr('data-code')));
+			}
+				
             card_ingredients_json.push(addon_code);
         });
-		
-		 
-		
-		if(obj.find('.addons .extra_outlet').length !== 0){
-			$('.outsider_object').html('<div class="extra_outlet_wrap">' + $('.extra_outlet')[0].outerHTML + '</div><a href="#" class="btn remove_outsider_obj">Poista yhde</a>');
-			var e_outlet = obj.find('.addons .extra_outlet'),
-				e_code = e_outlet.attr('data-code'),
-				e_type = e_outlet.attr('data-type'),
-				e_amount = e_outlet.attr('data-amount'),
-				e_height = e_outlet.attr('data-height'),
-				e_angle = e_outlet.attr('data-angle'),
-				e_drop = e_outlet.attr('data-drop'),
-				e_pos_y = e_outlet.attr('data-pos_y'),
-				e_pos_x = e_outlet.attr('data-pos_x'),
-				e_link_details = encodeURIComponent(JSON.stringify({"type": e_type, "checkpoints": '['+e_pos_y+','+e_pos_x+']'})),
-				e_id = '';
-				
-				if(e_outlet.attr('data-id') !== undefined){
-					e_id = e_outlet.attr('data-id');
-				}
-		
-			var card_ingredients = {'code': e_code, 'amount': e_amount, 'height': e_height, 'angle': e_angle, 'drop': e_drop, 'id': e_id, 'link_details': e_link_details};
-			
-			card_ingredients_json.push(card_ingredients);
-		}
+
 
     //tulot
         obj.find('.inlet_wrap div').each(function() {
@@ -2261,9 +2272,6 @@ function final_code() {
     }
 	});
 
-
-
-
   var i_top = 0, i_top_calc = 0;
   var i_left = 0, i_left_calc = 0;
   
@@ -2287,15 +2295,14 @@ instance.on('transform', function(e) {
     recalc();
   }
 
-
 });
 
 
-  $(document).on('click', '#release_hook', function(e) {
-    e.preventDefault();
-    $(this).removeClass('active');
-    $('.object').removeClass('hooked');
-  });
+	$(document).on('click', '#release_hook', function(e) {
+		e.preventDefault();
+		$(this).removeClass('active');
+		$('.object').removeClass('hooked');
+	});
 
 
   var tapped = false;
