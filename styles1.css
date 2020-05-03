@@ -502,6 +502,9 @@ z-index:2000;
     box-shadow: 0 0 0 1px #a8a8a8, 0 1px 2px rgba(0, 0, 0, 0.2);
     margin: 10px 5px;
 }
+#options .tag.create_checkpoint {
+    display:none;
+}
 
 #options .tag.create_checkpoint.inactive {
 display:none;
@@ -1251,6 +1254,6 @@ position: absolute;
 		background: white!important;
 	}
 	
-	#menu, #options, .fullscreen_button, .middle, .center{display:none!important;}
+	#upload-zoning-plan, #file_inputs, .btn, #menu, #options, .fullscreen_button, .middle, .center, .addons, #close_options{display:none!important;}
 
 } 
