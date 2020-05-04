@@ -251,12 +251,11 @@ $('#map_overflow_wrap, #vr_wrap').on('mousewheel DOMMouseScroll', function (e) {
     if(field.is('select')){
       field.find('option').removeAttr('selected');
       field.find('option[value="'+cur_value+'"]').attr('selected','selected').prop('selected',true);
-    } else {
-      field.attr('value', cur_value);
     }
     
-      menu_to_source($('.object.active'));
-      recalc();
+	menu_to_source($('.object.active'));
+	recalc();
+	
 	});
     
 
@@ -1349,8 +1348,8 @@ function create_menu_from_source(current) {
                 '<a href="#" data-warning_msg="Huom. Olet kopioimassa nykyistä korttia!" class="tag">Valitse kortti kopioitavaksi</a>'+
                 '<div class="details">'+
                 '<div class="detail_1"><div class="details_title">kaivonumero/id:</div><input data-source="'+card_id_full+'" data-card_type="'+card_type+'" class="details_id" type="text" name="kid" autocomplete="off" value="'+card_id+'"><br><span>(Kirjoita vain numero, kaivotyyppi tulee automaattisesti)</span></div>'+
-                '<div class="detail_4"><div class="details_title">&#8593; maanpinta:</div><input class="details_upper_m" type="number" name="upper" autocomplete="off" value="'+card_top_pin+'"></div>'+
-                '<div class="detail_5"><div class="details_title">&#8595; v.juoksu:</div><input class="details_lower_m" type="number" name="lower" autocomplete="off" value="'+card_bottom_pin+'"></div>'+
+                '<div class="detail_4"><div class="details_title">&#8593; maanpinta:</div><input class="details_upper_m" type="number" name="upper" step="0.1" autocomplete="off" value="'+card_top_pin+'"></div>'+
+                '<div class="detail_5"><div class="details_title">&#8595; v.juoksu:</div><input class="details_lower_m" type="number" name="lower" step="0.1" autocomplete="off" value="'+card_bottom_pin+'"></div>'+
                       
                 '<div class="detail_6"><div class="details_title">sakkapesä:</div><input class="details_chamber" type="number" name="chamber" step="0.1" min="0" autocomplete="off" value="'+card_chamber+'"><span>m</span></div>'+
 
@@ -2075,7 +2074,7 @@ function final_code() {
         $('#code_warnings').append('<div class="warning_note">'+obj_id_full+': Kohdekaivon tulon tyyppi puuttuu!</div>');
     }
 	
-    if(obj.find('.middle').length == 0 && obj.find('.extra_outlet').length == 0){
+    if(obj.find('.outlet_wrap div').length == 0 && obj.find('.inlet_wrap div').length == 0 && obj.find('.extra_outlet').length == 0){
         fail = true;
 		alert('kaivossa '+obj_id_full+' ei ole tuloja eikä poistoja! Lähetys estetty.');
 	}
