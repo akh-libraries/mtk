@@ -1445,8 +1445,9 @@ function create_menu_from_source(current) {
       tupla = helper.category_and_children(helper.find_category_by_path(['runko', 'tupla'])),
       rungon_osat_opt = '';
   
-  var available_outlets = helper.category_and_children(helper.find_category_by_path(['yhde', 'poisto'])), outlets = '', outsider_inlets = '';
-  var available_outlets_extra = helper.category_and_children(helper.find_category_by_path(['yhde', 'tulo_tai_poisto']));
+  var available_outlets = helper.category_and_children(helper.find_category_by_path(['yhde', 'poisto'])), outlets = '', outsider_inlets = '', outsider_inlets_other = '';
+  var available_outlets_extra = helper.category_and_children(helper.find_category_by_path(['yhde', 'tulo']));
+  var available_outlets_extra_other = helper.category_and_children(helper.find_category_by_path(['yhde', 'tulo_tai_poisto']));
   
 	api.wellingredients(
 		card_identifier,
@@ -1460,6 +1461,7 @@ function create_menu_from_source(current) {
 			lisavaruste_json = helper.filter_ingredients_by_categories(o, lisavaruste),
 			outlets_json = helper.filter_ingredients_by_categories(o, available_outlets),
 			outlets_extra_json = helper.filter_ingredients_by_categories(o, available_outlets_extra);
+			outlets_extra_json_other = helper.filter_ingredients_by_categories(o, available_outlets_extra_other);
             
             
 		var runkoputki_jenga_json = helper.filter_ingredients_by_categories(o, runkoputki_jenga),
@@ -1539,11 +1541,15 @@ function create_menu_from_source(current) {
             
 			$.each(outlets_extra_json, function(i, item) {
 				outsider_inlets += '<option value="'+outlets_extra_json[i].code+'" data-necessity="'+outlets_extra_json[i].necessity+'" data-outlet_diameter="'+outlets_extra_json[i].diameter+'" data-outlet_amount="'+outlets_extra_json[i].amount+'" data-outlet_unit="'+outlets_extra_json[i].unit+'">'+outlets_extra_json[i].name.toUpperCase()+'</option>';
-
 			});
-
-			outlets += outsider_inlets;
 			
+			$.each(outlets_extra_json_other, function(i, item) {
+				outsider_inlets_other += '<option value="'+outlets_extra_json_other[i].code+'" data-necessity="'+outlets_extra_json_other[i].necessity+'" data-outlet_diameter="'+outlets_extra_json_other[i].diameter+'" data-outlet_amount="'+outlets_extra_json_other[i].amount+'" data-outlet_unit="'+outlets_extra_json_other[i].unit+'">'+outlets_extra_json_other[i].name.toUpperCase()+'</option>';
+			});
+			
+			outsider_inlets += outsider_inlets_other;
+			outlets += outsider_inlets_other;
+	
 		if(sakka_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Sakkapesä:</span></div>'+sakka_opt+'</div>');}
 		if(teleskooppi_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Teleskooppi:</span></div>'+teleskooppi_opt+'</div>');}
 		if(kansi_opt.length > 0){options.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title"><span>Kansi/yläosa:</span></div>'+kansi_opt+'</div>');} 
@@ -1560,7 +1566,6 @@ function create_menu_from_source(current) {
 		options.find('.outsider_inlet1 .outsider_object_select').append(outsider_inlets);
 		options.find('.outsider_inlet2 .outsider_object_select').append(outsider_inlets);
 		options.find('.outsider_inlet3 .outsider_object_select').append(outsider_inlets);
-
 
 // if new card, use default values
 	if(card.hasClass('fresh_card')){
@@ -1674,7 +1679,6 @@ function create_menu_from_source(current) {
 			spinner.removeClass('active');
 		}
 	);
-  
   
   
 	var available_inlets = helper.category_and_children(helper.find_category_by_path(['yhde', 'tulo']));
@@ -2202,7 +2206,7 @@ function final_code() {
       wells.push(card_code);
 
   });
-  
+  console.log(wells);
       if(fail == false){
         
 		spinner.addClass('active');
@@ -2212,7 +2216,6 @@ function final_code() {
 			api.save_wells(
 			  wells,
 			  function(o) {
-				console.log(o);
 				spinner.removeClass('active');
 				window.open(base_url+'/heavyuser_wellorders/'+wor);     
 			}, function(o) {
