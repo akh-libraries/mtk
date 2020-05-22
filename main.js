@@ -1677,7 +1677,8 @@ function create_menu_from_source(current) {
   
   
   
-	var available_inlets = helper.category_and_children(helper.find_category_by_path(['yhde', 'tulo_tai_poisto']));
+	var available_inlets = helper.category_and_children(helper.find_category_by_path(['yhde', 'tulo']));
+	var available_inlets_other = helper.category_and_children(helper.find_category_by_path(['yhde', 'tulo_tai_poisto']));
   
   if (card_target.length > 0) {
       
@@ -1689,9 +1690,14 @@ function create_menu_from_source(current) {
 			target_card_identifier,
 			function(o) {
 				var inlets_json = helper.filter_ingredients_by_categories(o, available_inlets);
+				var inlets_json_other = helper.filter_ingredients_by_categories(o, available_inlets_other);
 
 				$.each(inlets_json, function(i, item) {
 					inlets += '<option value="'+inlets_json[i].code+'" data-necessity="'+inlets_json[i].necessity+'" data-outlet_diameter="'+inlets_json[i].diameter+'" data-outlet_amount="'+inlets_json[i].amount+'" data-outlet_unit="'+inlets_json[i].unit+'">'+inlets_json[i].name.toUpperCase()+'</option>';
+				});
+				
+				$.each(inlets_json_other, function(i, item) {
+					inlets += '<option value="'+inlets_json_other[i].code+'" data-necessity="'+inlets_json_other[i].necessity+'" data-outlet_diameter="'+inlets_json_other[i].diameter+'" data-outlet_amount="'+inlets_json_other[i].amount+'" data-outlet_unit="'+inlets_json_other[i].unit+'">'+inlets_json_other[i].name.toUpperCase()+'</option>';
 				});
 
 				var inlet_option = $('<div class="inlets_options" data-ownid="'+card_id_full+'" data-target="'+target_array[i]+'">'+
