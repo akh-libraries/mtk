@@ -667,7 +667,7 @@ var pin_counter = 1;
 
 function recalc() {
   
-if(timestamp+10 > get_time()){
+if(timestamp+50 > get_time()){
 
 } else {
 
