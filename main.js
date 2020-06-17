@@ -1350,7 +1350,7 @@ function create_menu_from_source(current) {
                 '<div class="detail_1"><div class="details_title">kaivonumero/id:</div><input data-source="'+card_id_full+'" data-card_type="'+card_type+'" class="details_id" type="text" name="kid" autocomplete="off" value="'+card_id+'"><br><span>(Kirjoita vain numero, kaivotyyppi tulee automaattisesti)</span></div>'+
                 '<div class="detail_4"><div class="details_title">&#8593; maanpinta:</div><input class="details_upper_m" type="number" name="upper" step="0.1" autocomplete="off" value="'+card_top_pin+'"></div>'+
                 '<div class="detail_5"><div class="details_title">&#8595; v.juoksu:</div><input class="details_lower_m" type="number" name="lower" step="0.1" autocomplete="off" value="'+card_bottom_pin+'"></div>'+
-                      
+                '<div>Korkeus: <span class="calculated_height">1.00</span>m</div>'+
                 '<div class="detail_6"><div class="details_title">sakkapesä:</div><input class="details_chamber" type="number" name="chamber" step="0.1" min="0" autocomplete="off" value="'+card_chamber+'"><span>m</span></div>'+
 
                 '<div class="inlet_outlet_placeholder"></div>'+
@@ -1919,6 +1919,8 @@ function menu_to_source(card) {
 		current.attr('data-id', card_id);
 		current.attr('data-id_full', card_id_full);
 	}
+	
+	options.find('.calculated_height').text((obj_top_pin - obj_bottom_pin).toFixed(2));
 
 	var outlet_options_array = [];
   
