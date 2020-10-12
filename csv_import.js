@@ -4,7 +4,7 @@
 			"upload_button":"Upload csv file",
 			"back_button":"Go back to CCS",
 			"send_button":"Send wells to CCS",
-			"loaded_cards_title":"Current wells on order",
+			"loaded_cards_title":"Current wells",
 			"connections":"Lines",
 			"wells":"Wells",
 			"total":"Total",
