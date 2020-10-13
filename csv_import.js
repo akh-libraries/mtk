@@ -228,7 +228,7 @@ function ScrollZoom(container,max_scale,factor){
 			parent_frame = current_input.parents('.card');
 
 
-		parent_frame.attr('data-well_id', current_input.val())
+		parent_frame.attr('data-well_name', current_input.val())
 		build_map();
 
 	});
@@ -956,7 +956,7 @@ function ScrollZoom(container,max_scale,factor){
 
 		var card_wrap = card;
 		var card_identifier = card_wrap.attr('data-frame_id');
-		var well_name = card_wrap.attr('data-well_id');
+		var well_name = card_wrap.attr('data-well_name');
 		var frame_name = menu_items.find('.tag[data-identifier="'+card_identifier+'"]').text();
 		var frame_type = menu_items.find('.tag[data-identifier="'+card_identifier+'"]').attr('data-type');
 
@@ -966,7 +966,7 @@ function ScrollZoom(container,max_scale,factor){
 		if(well_name){
 			
 			card_wrap.find('.well_tag').remove();
-			card_wrap.prepend('<div class="well_tag"><span><label>'+frame_type+'-<input type="text" class="final_well_id" name="final_well_id" value="'+well_name+'"></label></span> ('+frame_name+')</div>');
+			card_wrap.prepend('<div class="well_tag"><span><label><input type="text" class="final_well_id" name="final_well_id" value="'+well_name+'"></label></span> ('+frame_name+')</div>');
 			card_wrap.find('.multi_selector_wrap').html('');
 
 			//multi options
@@ -1017,62 +1017,62 @@ function ScrollZoom(container,max_scale,factor){
 					tupla_json = helper.filter_ingredients_by_categories(o, tupla);
 
 					$.each(sakka_json, function(i, item) {
-					var json_val = encodeURIComponent(JSON.stringify({"ingredient": sakka_json[i].code, "amount": sakka_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
+					var json_val = encodeURIComponent(JSON.stringify({"ingredient": sakka_json[i].code, "amount": sakka_json[i].amount, "height": 0, "angle": 0, "drop": 0}));                                            
 						sakka_opt += '<label><input type="checkbox" data-necessity="'+sakka_json[i].necessity+'" data-id="'+sakka_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+sakka_json[i].unit+'">'+sakka_json[i].name+'</label>';
 					});
 
 					$.each(teleskooppi_json, function(i, item) {
-					var json_val = encodeURIComponent(JSON.stringify({"ingredient": teleskooppi_json[i].code, "amount": teleskooppi_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
+					var json_val = encodeURIComponent(JSON.stringify({"ingredient": teleskooppi_json[i].code, "amount": teleskooppi_json[i].amount, "height": 0, "angle": 0, "drop": 0}));                                            
 						teleskooppi_opt += '<label><input type="checkbox" data-necessity="'+teleskooppi_json[i].necessity+'" data-id="'+teleskooppi_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+teleskooppi_json[i].unit+'">'+teleskooppi_json[i].name+'</label>';
 					});
 
 					$.each(kansi_json, function(i, item) {
-					var json_val = encodeURIComponent(JSON.stringify({"ingredient": kansi_json[i].code, "amount": kansi_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
+					var json_val = encodeURIComponent(JSON.stringify({"ingredient": kansi_json[i].code, "amount": kansi_json[i].amount, "height": 0, "angle": 0, "drop": 0}));                                            
 						kansi_opt += '<label><input type="checkbox" data-necessity="'+kansi_json[i].necessity+'" data-id="'+kansi_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+kansi_json[i].unit+'">'+kansi_json[i].name+'</label>';
 					});
 
 					$.each(runkoputki_jenga_json, function(i, item) {
-					var json_val = encodeURIComponent(JSON.stringify({"ingredient": runkoputki_jenga_json[i].code, "amount": runkoputki_jenga_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
+					var json_val = encodeURIComponent(JSON.stringify({"ingredient": runkoputki_jenga_json[i].code, "amount": runkoputki_jenga_json[i].amount, "height": 0, "angle": 0, "drop": 0}));                                            
 						runkoputki_opt += '<label><input type="checkbox" name="frame" data-frame_unit="'+runkoputki_jenga_json[i].unit+'" data-frame_diameter="'+runkoputki_jenga_json[i].diameter+'" data-frame_amount="'+runkoputki_jenga_json[i].amount+'" data-necessity="'+runkoputki_jenga_json[i].necessity+'" data-id="'+runkoputki_jenga_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+runkoputki_jenga_json[i].unit+'">'+runkoputki_jenga_json[i].name+'</label>';
 					});
 					
 					$.each(runkoputki_massiivi_json, function(i, item) {
-					var json_val = encodeURIComponent(JSON.stringify({"ingredient": runkoputki_massiivi_json[i].code, "amount": runkoputki_massiivi_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
+					var json_val = encodeURIComponent(JSON.stringify({"ingredient": runkoputki_massiivi_json[i].code, "amount": runkoputki_massiivi_json[i].amount, "height": 0, "angle": 0, "drop": 0}));                                            
 						runkoputki_opt += '<label><input type="checkbox" name="frame" data-frame_unit="'+runkoputki_massiivi_json[i].unit+'" data-frame_diameter="'+runkoputki_massiivi_json[i].diameter+'" data-frame_amount="'+runkoputki_massiivi_json[i].amount+'" data-necessity="'+runkoputki_massiivi_json[i].necessity+'" data-id="'+runkoputki_massiivi_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+runkoputki_massiivi_json[i].unit+'">'+runkoputki_massiivi_json[i].name+'</label>';
 					});
 
 					$.each(aihio_json, function(i, item) {
-					var json_val = encodeURIComponent(JSON.stringify({"ingredient": aihio_json[i].code, "amount": aihio_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
+					var json_val = encodeURIComponent(JSON.stringify({"ingredient": aihio_json[i].code, "amount": aihio_json[i].amount, "height": 0, "angle": 0, "drop": 0}));                                            
 						rungon_osat_opt += '<label><input type="checkbox" data-necessity="'+aihio_json[i].necessity+'" data-id="'+aihio_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+aihio_json[i].unit+'">'+aihio_json[i].name+'</label>';
 					});
 					
 					$.each(kartio_json, function(i, item) {
-					var json_val = encodeURIComponent(JSON.stringify({"ingredient": kartio_json[i].code, "amount": kartio_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
+					var json_val = encodeURIComponent(JSON.stringify({"ingredient": kartio_json[i].code, "amount": kartio_json[i].amount, "height": 0, "angle": 0, "drop": 0}));                                            
 						rungon_osat_opt += '<label><input type="checkbox" data-necessity="'+kartio_json[i].necessity+'" data-id="'+kartio_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+kartio_json[i].unit+'">'+kartio_json[i].name+'</label>';
 					});
 					
 					$.each(roto_json, function(i, item) {
-					var json_val = encodeURIComponent(JSON.stringify({"ingredient": roto_json[i].code, "amount": roto_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
+					var json_val = encodeURIComponent(JSON.stringify({"ingredient": roto_json[i].code, "amount": roto_json[i].amount, "height": 0, "angle": 0, "drop": 0}));                                            
 						rungon_osat_opt += '<label><input type="checkbox" data-necessity="'+roto_json[i].necessity+'" data-id="'+roto_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+roto_json[i].unit+'">'+roto_json[i].name+'</label>';
 					});
 					
 					$.each(tupla_json, function(i, item) {
-					var json_val = encodeURIComponent(JSON.stringify({"ingredient": tupla_json[i].code, "amount": tupla_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
+					var json_val = encodeURIComponent(JSON.stringify({"ingredient": tupla_json[i].code, "amount": tupla_json[i].amount, "height": 0, "angle": 0, "drop": 0}));                                            
 						rungon_osat_opt += '<label><input type="checkbox" data-necessity="'+tupla_json[i].necessity+'" data-id="'+tupla_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+tupla_json[i].unit+'">'+tupla_json[i].name+'</label>';
 					});
 
 					$.each(venttiili_json, function(i, item) {
-					var json_val = encodeURIComponent(JSON.stringify({"ingredient": venttiili_json[i].code, "amount": venttiili_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
+					var json_val = encodeURIComponent(JSON.stringify({"ingredient": venttiili_json[i].code, "amount": venttiili_json[i].amount, "height": 0, "angle": 0, "drop": 0}));                                            
 						venttiili_opt += '<label><input type="checkbox" data-necessity="'+venttiili_json[i].necessity+'" data-id="'+venttiili_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+venttiili_json[i].unit+'">'+venttiili_json[i].name+'</label>';
 					});
 					
 					$.each(pohja_json, function(i, item) {
-					var json_val = encodeURIComponent(JSON.stringify({"ingredient": pohja_json[i].code, "amount": pohja_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
+					var json_val = encodeURIComponent(JSON.stringify({"ingredient": pohja_json[i].code, "amount": pohja_json[i].amount, "height": 0, "angle": 0, "drop": 0}));                                            
 						pohja_opt += '<label><input type="checkbox" data-necessity="'+pohja_json[i].necessity+'" data-id="'+pohja_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+pohja_json[i].unit+'">'+pohja_json[i].name+'</label>';
 					});
 					
 					$.each(lisavaruste_json, function(i, item) {
-					var json_val = encodeURIComponent(JSON.stringify({"ingredient": lisavaruste_json[i].code, "amount": lisavaruste_json[i].amount, "height": "0", "angle": "0", "drop": "0"}));                                            
+					var json_val = encodeURIComponent(JSON.stringify({"ingredient": lisavaruste_json[i].code, "amount": lisavaruste_json[i].amount, "height": 0, "angle": 0, "drop": 0}));                                            
 						lisavaruste_opt += '<label><input type="checkbox" data-necessity="'+lisavaruste_json[i].necessity+'" data-id="'+lisavaruste_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+lisavaruste_json[i].unit+'">'+lisavaruste_json[i].name+'</label>';
 					});
 
@@ -1262,10 +1262,9 @@ function ScrollZoom(container,max_scale,factor){
 		
 		  var obj = $(this);
 		
-		  var well_type = obj.attr('data-frame_type'),
-			  well_id = obj.attr('data-well_id');
+		  var well_id = obj.attr('data-well_name');
 		  
-			if($('.card[data-frame_type="'+well_type+'"][data-well_id="'+well_id+'"]').not(obj).length > 0 || $('.preloaded_card[data-id="'+well_type +'-'+ well_id+'"]').length > 0){
+			if($('.card[data-well_name="'+well_id+'"]').not(obj).length > 0 || $('.preloaded_card[data-id="'+well_id+'"]').length > 0){
 
 				duplicate = true;
 
@@ -1280,9 +1279,9 @@ function ScrollZoom(container,max_scale,factor){
 
 			}
 			
-		  var obj_id_full = well_type +'-'+ well_id,
-			  obj_height = obj.find('.well_height').val(),
-			  obj_height_chamber = obj.find('.sp_height').val(),
+		  var obj_id_full = well_id,
+			  obj_height = parseFloat(obj.find('.well_height').val()),
+			  obj_height_chamber = parseFloat(obj.find('.sp_height').val()),
 			  obj_wellgroup = obj.attr('data-frame_id');
 
 			var card_code = [];
@@ -1301,10 +1300,10 @@ function ScrollZoom(container,max_scale,factor){
 				var wrap = $(this),
 					selected = wrap.find('option:selected'),
 					selected_part = selected.val(),
-					o_amount = selected.attr('data-outlet_amount'),
-					o_height = "0",
-					o_angle = "0",
-					o_drop = "0";
+					o_amount = parseFloat(selected.attr('data-outlet_amount')),
+					o_height = 0,
+					o_angle = 0,
+					o_drop = 0;
 	 
 				var card_ingredients = {'ingredient': selected_part, 'amount': o_amount, 'height': o_height, 'angle': o_angle, 'drop': o_drop};
 	 
@@ -1317,21 +1316,20 @@ function ScrollZoom(container,max_scale,factor){
 				var wrap = $(this),
 					selected = wrap.find('option:selected'),
 					selected_part = selected.val(),
-					o_amount = selected.attr('data-outlet_amount'),
-					o_height = wrap.find('.inlet_height').val(),
-					o_angle = wrap.find('.inlet_angle').val(),
-					o_drop = "0";
+					o_amount = parseFloat(selected.attr('data-outlet_amount')),
+					o_height = parseFloat(wrap.find('.inlet_height').val()),
+					o_angle = parseFloat(wrap.find('.inlet_angle').val()),
+					o_drop = 0;
 	 
 				var card_ingredients = {'ingredient': selected_part, 'amount': o_amount, 'height': o_height, 'angle': o_angle, 'drop': o_drop};
 	 
 				card_ingredients_json.push(card_ingredients);
 			});
 
-			card_code = {'identifier': obj_id_full, 'amount': 1, 'height_ground': obj_height, 'height_water': "0", 'height_sp': obj_height_chamber, 'wellgroup': obj_wellgroup, 'ingredients': card_ingredients_json};
+			card_code = {'identifier': obj_id_full, 'amount': 1, 'height_ground': obj_height, 'height_water': 0, 'height_sp': obj_height_chamber, 'wellgroup': obj_wellgroup, 'ingredients': card_ingredients_json};
 			wells_json.push(card_code);
 
 		});
-
 
 		if(duplicate == false && cards_found == true){
 
