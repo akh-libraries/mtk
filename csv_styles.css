@@ -54,6 +54,9 @@ body{
     line-height: 30px;
     vertical-align: top;
 }
+#send_codes {
+	background: #26862a;
+}
 .upload_button:hover #file_upload_button, #send_codes:hover, #return_button:hover {
 	background: #0066b5;
     border-color: #0066b5;
@@ -470,16 +473,6 @@ select option[disabled]{
     display: none;
 }
 
-
-.dynamic_wrap [data-wanted]::before{
-    content: attr(data-wanted);
-    display: block;
-    font-weight: 700;
-    font-size: .75em;
-    color: #de3023;
-}
-
-
 .multi_selector_wrap label:hover, .multi_selector_wrap a:hover {
 	position: relative;
 	text-decoration:none;
@@ -522,10 +515,13 @@ input[readonly], input[readonly="readonly"], input[disabled] {
     cursor: not-allowed!important;
 }
 
-select.warning{box-shadow: 0 0 0 1px #ff0000;}
+select.warning{
+    box-shadow: 0 1px 2px rgba(220, 18, 18, 0.4);
+    border: 1px solid #dc1212;
+}
 .warning_msg{
     color: white;
-    background: #ff0000;
+    background: #dc1212;
     margin: 4px;
     display: block;
     text-align: center;
