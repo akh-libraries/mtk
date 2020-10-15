@@ -1,4 +1,6 @@
 	
+var base_url = window.location.origin;
+var wor = $('#content').attr('data-wellorder-reference');
 	
 		var lang_txt = {
 			"upload_button":"Upload csv file",
@@ -14,7 +16,7 @@
 			"height_ground":"Height ground",
 			"height_water":"Height water",
 			"height":"Height",
-			"height_deposit":"Height deposit",
+			"height_deposit":"Deposit",
 			"angle":"Angle",
 			"outlet":"Outlet",
 			"inlet":"Inlet",
@@ -27,6 +29,7 @@
 			"water_lock":"Water lock",
 			"base":"Base",
 			"addons":"Addons",
+			"others":"Others",
 			"sure":"Are you sure?",
 			"model":"Model",
 			"not_found":"Not found",
@@ -44,7 +47,7 @@
 		var data_wrap = '<div id="import_data">'+
 							'<div id="button_wrap">'+
 								'<div class="upload_button"><button id="file_upload_button">'+lang_txt["upload_button"]+'</button><input type="file" id="file_upload" /></div>'+
-								'<a href="#" style="display:none;" id="return_button">'+lang_txt["back_button"]+'</a><a href="#" id="send_codes">'+lang_txt["send_button"]+'</a>'+
+								'<a href="'+base_url+'/heavyuser_wellorders/'+wor+'" id="return_button">'+lang_txt["back_button"]+'</a><a href="#" id="send_codes">'+lang_txt["send_button"]+'</a>'+
 							'</div>'+
 						'</div>'+
 						'<div id="imported_content"><div class="map_content"></div><div class="loaded_cards"></div><div class="import_cards"></div></div>'+
@@ -62,7 +65,8 @@
 	var menu_items = $('#menu_items');
 	var helper = null;
 	var api;
-	var wor = $('#content').attr('data-wellorder-reference');
+	
+	var old_wells = [];
 
 	(function () {
 		window.api = ZoningData();
@@ -99,6 +103,7 @@
         function(o) {
             console.log(o);
 			zoning_data = o.zoning_plan;
+			old_wells = o.wellorders;
             if(o.wellorders.length > 0){setTimeout(function(){reload_order(o.wellorders);}, 1500);}
         }, function(o) {
               console.log('Failure');
@@ -234,6 +239,7 @@ function ScrollZoom(container,max_scale,factor){
 	});
 
 
+
 	function uploadFile () {}; 
 
 	uploadFile.prototype.getFile = function(e) {
@@ -305,18 +311,18 @@ function ScrollZoom(container,max_scale,factor){
                 if(!breaks && row_col_val !== ""){
                     
                     if(row_col_key == 'outlet_diameter'){
-                        csv_card_data += '<div class="card_outlet_wrap">';
+                        csv_card_data += '<div class="card_outlet_wrap"><div class="dynamic_wrap"></div>';
                     }
                     
                     if(row_col_key == 'inlet1_diameter' || row_col_key == 'inlet2_diameter' || row_col_key == 'inlet3_diameter' || row_col_key == 'inlet4_diameter'){
-                        csv_card_data += '<div class="card_inlet_wrap">';
+                        csv_card_data += '<div class="card_inlet_wrap"><div class="dynamic_wrap"></div>';
                     }
 
 					if(row_col_key == 'height'){
 						csv_card_data += '<div class="label_row"><label>'+lang_txt["height"]+':<input type="number" min="0" class="well_height" name="well_height" min="0" step="0.01" value="'+(parseFloat(row_col_val)/1000)+'">m</label>';
 						csv_card_data += '<label>'+lang_txt["height_deposit"]+':<input type="number" min="0" class="sp_height" name="sp_height" min="0" step="0.01" value="0">m</label></div>';
 					} else {
-						csv_card_data += '<div data-key="'+row_col_key+'" data-value="'+row_col_val+'"></div>';
+						csv_card_data += '<div class="val_tag" data-key="'+row_col_key+'" data-value="'+row_col_val+'"></div>';
 					}
                    
                     if(row_col_key == 'outlet_angle' || row_col_key == 'inlet1_angle' || row_col_key == 'inlet2_angle' || row_col_key == 'inlet3_angle' || row_col_key == 'inlet4_angle'){
@@ -969,26 +975,14 @@ function ScrollZoom(container,max_scale,factor){
 			card_wrap.prepend('<div class="well_tag"><span><label><input type="text" class="final_well_id" name="final_well_id" value="'+well_name+'"></label></span> ('+frame_name+')</div>');
 			card_wrap.find('.multi_selector_wrap').html('');
 
-			//multi options
-			var sakka = helper.category_and_children(helper.find_category_by_path(['sakkapesa'])), sakka_opt = '';
-			var teleskooppi = helper.category_and_children(helper.find_category_by_path(['teleskoopit'])), teleskooppi_opt = '';
-			var kansi = helper.category_and_children(helper.find_category_by_path(['kansi'])), kansi_opt = '';
-			var venttiili = helper.category_and_children(helper.find_category_by_path(['venttiili'])), venttiili_opt = '';
-			var pohja = helper.category_and_children(helper.find_category_by_path(['pohja'])), pohja_opt = '';
-			var lisavaruste = helper.category_and_children(helper.find_category_by_path(['lisavaruste'])), lisavaruste_opt = '';
-
-			//runkoputki
-			var runkoputki_jenga = helper.category_and_children(helper.find_category_by_path(['runko', 'jenga'])),
-				runkoputki_massiivi = helper.category_and_children(helper.find_category_by_path(['runko', 'massiivi'])),
-				runkoputki_opt = '';
-
-			// rungon osat
-			var aihio = helper.category_and_children(helper.find_category_by_path(['runko', 'aihio'])),
-				kartio = helper.category_and_children(helper.find_category_by_path(['runko', 'kartio'])),
-				roto = helper.category_and_children(helper.find_category_by_path(['runko', 'roto'])),
-				tupla = helper.category_and_children(helper.find_category_by_path(['runko', 'tupla'])),
-				rungon_osat_opt = '';
-
+			var kansi_cats = helper.find_category_by_path(['kansi']).children, kansi_opts = '';
+			var lisavaruste_cats = helper.find_category_by_path(['lisavaruste']).children, lisavaruste_opts = '';
+			var muu_cats = helper.find_category_by_path(['muu']).children, muu_opts = '';
+			var pohja_cats = helper.find_category_by_path(['pohja']).children, pohja_opts = '';
+			var runko_cats = helper.find_category_by_path(['runko']).children, runko_opts = '';
+			var sakkapesa_cats = helper.find_category_by_path(['sakkapesa']).children, sakkapesa_opts = '';
+			var teleskoopit_cats = helper.find_category_by_path(['teleskoopit']).children, teleskoopit_opts = '';
+			var venttiili_cats = helper.find_category_by_path(['venttiili']).children, venttiili_opts = '';
 
 			var available_outlets = helper.category_and_children(helper.find_category_by_path(['yhde', 'poisto'])), outlets = '', outsider_inlets = '', outsider_inlets_other = '';
 			var available_outlets_extra = helper.category_and_children(helper.find_category_by_path(['yhde', 'tulo']));
@@ -997,130 +991,153 @@ function ScrollZoom(container,max_scale,factor){
 			api.wellingredients(
 				card_identifier,
 				function(o) {
-					
-				var sakka_json = helper.filter_ingredients_by_categories(o, sakka),
-					teleskooppi_json = helper.filter_ingredients_by_categories(o, teleskooppi),
-					kansi_json = helper.filter_ingredients_by_categories(o, kansi),
-					venttiili_json = helper.filter_ingredients_by_categories(o, venttiili),
-					pohja_json = helper.filter_ingredients_by_categories(o, pohja),
-					lisavaruste_json = helper.filter_ingredients_by_categories(o, lisavaruste),
-					outlets_json = helper.filter_ingredients_by_categories(o, available_outlets),
-					outlets_extra_json = helper.filter_ingredients_by_categories(o, available_outlets_extra),
-					outlets_extra_json_other = helper.filter_ingredients_by_categories(o, available_outlets_extra_other);
-					
-				var runkoputki_jenga_json = helper.filter_ingredients_by_categories(o, runkoputki_jenga),
-					runkoputki_massiivi_json = helper.filter_ingredients_by_categories(o, runkoputki_massiivi);
-					
-				var aihio_json = helper.filter_ingredients_by_categories(o, aihio),
-					kartio_json = helper.filter_ingredients_by_categories(o, kartio),
-					roto_json = helper.filter_ingredients_by_categories(o, roto),
-					tupla_json = helper.filter_ingredients_by_categories(o, tupla);
 
-					$.each(sakka_json, function(i, item) {
-					var json_val = encodeURIComponent(JSON.stringify({"ingredient": sakka_json[i].code, "amount": sakka_json[i].amount, "height": 0, "angle": 0, "drop": 0}));                                            
-						sakka_opt += '<label><input type="checkbox" data-necessity="'+sakka_json[i].necessity+'" data-id="'+sakka_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+sakka_json[i].unit+'">'+sakka_json[i].name+'</label>';
-					});
+				outlets_json = helper.filter_ingredients_by_categories(o, available_outlets),
+				outlets_extra_json = helper.filter_ingredients_by_categories(o, available_outlets_extra),
+				outlets_extra_json_other = helper.filter_ingredients_by_categories(o, available_outlets_extra_other);
+		
 
-					$.each(teleskooppi_json, function(i, item) {
-					var json_val = encodeURIComponent(JSON.stringify({"ingredient": teleskooppi_json[i].code, "amount": teleskooppi_json[i].amount, "height": 0, "angle": 0, "drop": 0}));                                            
-						teleskooppi_opt += '<label><input type="checkbox" data-necessity="'+teleskooppi_json[i].necessity+'" data-id="'+teleskooppi_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+teleskooppi_json[i].unit+'">'+teleskooppi_json[i].name+'</label>';
-					});
+				//basic parts
+				$.each(kansi_cats, function(i, item) {
+					var current_cat = item.identifier;
+						current_sub = helper.category_and_children(helper.find_category_by_path(['kansi', current_cat]));
+					
+					var current_json = helper.filter_ingredients_by_categories(o, current_sub);
 
-					$.each(kansi_json, function(i, item) {
-					var json_val = encodeURIComponent(JSON.stringify({"ingredient": kansi_json[i].code, "amount": kansi_json[i].amount, "height": 0, "angle": 0, "drop": 0}));                                            
-						kansi_opt += '<label><input type="checkbox" data-necessity="'+kansi_json[i].necessity+'" data-id="'+kansi_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+kansi_json[i].unit+'">'+kansi_json[i].name+'</label>';
+					$.each(current_json, function(i, item) {
+						var json_val = encodeURIComponent(JSON.stringify({"ingredient": current_json[i].code, "amount": current_json[i].amount, "height": 0, "angle": 0, "drop": 0}));                                            
+							kansi_opts += '<label><input type="checkbox" data-necessity="'+current_json[i].necessity+'" data-id="'+current_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+current_json[i].unit+'">'+current_json[i].name+'</label>';
 					});
+				});
 
-					$.each(runkoputki_jenga_json, function(i, item) {
-					var json_val = encodeURIComponent(JSON.stringify({"ingredient": runkoputki_jenga_json[i].code, "amount": runkoputki_jenga_json[i].amount, "height": 0, "angle": 0, "drop": 0}));                                            
-						runkoputki_opt += '<label><input type="checkbox" name="frame" data-frame_unit="'+runkoputki_jenga_json[i].unit+'" data-frame_diameter="'+runkoputki_jenga_json[i].diameter+'" data-frame_amount="'+runkoputki_jenga_json[i].amount+'" data-necessity="'+runkoputki_jenga_json[i].necessity+'" data-id="'+runkoputki_jenga_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+runkoputki_jenga_json[i].unit+'">'+runkoputki_jenga_json[i].name+'</label>';
-					});
+				$.each(lisavaruste_cats, function(i, item) {
+					var current_cat = item.identifier;
+						current_sub = helper.category_and_children(helper.find_category_by_path(['lisavaruste', current_cat]));
 					
-					$.each(runkoputki_massiivi_json, function(i, item) {
-					var json_val = encodeURIComponent(JSON.stringify({"ingredient": runkoputki_massiivi_json[i].code, "amount": runkoputki_massiivi_json[i].amount, "height": 0, "angle": 0, "drop": 0}));                                            
-						runkoputki_opt += '<label><input type="checkbox" name="frame" data-frame_unit="'+runkoputki_massiivi_json[i].unit+'" data-frame_diameter="'+runkoputki_massiivi_json[i].diameter+'" data-frame_amount="'+runkoputki_massiivi_json[i].amount+'" data-necessity="'+runkoputki_massiivi_json[i].necessity+'" data-id="'+runkoputki_massiivi_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+runkoputki_massiivi_json[i].unit+'">'+runkoputki_massiivi_json[i].name+'</label>';
-					});
+					var current_json = helper.filter_ingredients_by_categories(o, current_sub);
 
-					$.each(aihio_json, function(i, item) {
-					var json_val = encodeURIComponent(JSON.stringify({"ingredient": aihio_json[i].code, "amount": aihio_json[i].amount, "height": 0, "angle": 0, "drop": 0}));                                            
-						rungon_osat_opt += '<label><input type="checkbox" data-necessity="'+aihio_json[i].necessity+'" data-id="'+aihio_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+aihio_json[i].unit+'">'+aihio_json[i].name+'</label>';
+					$.each(current_json, function(i, item) {
+						var json_val = encodeURIComponent(JSON.stringify({"ingredient": current_json[i].code, "amount": current_json[i].amount, "height": 0, "angle": 0, "drop": 0}));                                            
+							lisavaruste_opts += '<label><input type="checkbox" data-necessity="'+current_json[i].necessity+'" data-id="'+current_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+current_json[i].unit+'">'+current_json[i].name+'</label>';
 					});
-					
-					$.each(kartio_json, function(i, item) {
-					var json_val = encodeURIComponent(JSON.stringify({"ingredient": kartio_json[i].code, "amount": kartio_json[i].amount, "height": 0, "angle": 0, "drop": 0}));                                            
-						rungon_osat_opt += '<label><input type="checkbox" data-necessity="'+kartio_json[i].necessity+'" data-id="'+kartio_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+kartio_json[i].unit+'">'+kartio_json[i].name+'</label>';
-					});
-					
-					$.each(roto_json, function(i, item) {
-					var json_val = encodeURIComponent(JSON.stringify({"ingredient": roto_json[i].code, "amount": roto_json[i].amount, "height": 0, "angle": 0, "drop": 0}));                                            
-						rungon_osat_opt += '<label><input type="checkbox" data-necessity="'+roto_json[i].necessity+'" data-id="'+roto_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+roto_json[i].unit+'">'+roto_json[i].name+'</label>';
-					});
-					
-					$.each(tupla_json, function(i, item) {
-					var json_val = encodeURIComponent(JSON.stringify({"ingredient": tupla_json[i].code, "amount": tupla_json[i].amount, "height": 0, "angle": 0, "drop": 0}));                                            
-						rungon_osat_opt += '<label><input type="checkbox" data-necessity="'+tupla_json[i].necessity+'" data-id="'+tupla_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+tupla_json[i].unit+'">'+tupla_json[i].name+'</label>';
-					});
-
-					$.each(venttiili_json, function(i, item) {
-					var json_val = encodeURIComponent(JSON.stringify({"ingredient": venttiili_json[i].code, "amount": venttiili_json[i].amount, "height": 0, "angle": 0, "drop": 0}));                                            
-						venttiili_opt += '<label><input type="checkbox" data-necessity="'+venttiili_json[i].necessity+'" data-id="'+venttiili_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+venttiili_json[i].unit+'">'+venttiili_json[i].name+'</label>';
-					});
-					
-					$.each(pohja_json, function(i, item) {
-					var json_val = encodeURIComponent(JSON.stringify({"ingredient": pohja_json[i].code, "amount": pohja_json[i].amount, "height": 0, "angle": 0, "drop": 0}));                                            
-						pohja_opt += '<label><input type="checkbox" data-necessity="'+pohja_json[i].necessity+'" data-id="'+pohja_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+pohja_json[i].unit+'">'+pohja_json[i].name+'</label>';
-					});
-					
-					$.each(lisavaruste_json, function(i, item) {
-					var json_val = encodeURIComponent(JSON.stringify({"ingredient": lisavaruste_json[i].code, "amount": lisavaruste_json[i].amount, "height": 0, "angle": 0, "drop": 0}));                                            
-						lisavaruste_opt += '<label><input type="checkbox" data-necessity="'+lisavaruste_json[i].necessity+'" data-id="'+lisavaruste_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+lisavaruste_json[i].unit+'">'+lisavaruste_json[i].name+'</label>';
-					});
-
-					$.each(outlets_json, function(i, item) {
-						outlets += '<option class="primary" data-search="'+outlets_json[i].name.toLowerCase()+'" value="'+outlets_json[i].code+'" data-necessity="'+outlets_json[i].necessity+'" data-outlet_diameter="'+outlets_json[i].diameter+'" data-outlet_amount="'+outlets_json[i].amount+'" data-outlet_unit="'+outlets_json[i].unit+'">'+outlets_json[i].name.toUpperCase()+'</option>';
-					});
-					
-					$.each(outlets_extra_json, function(i, item) {
-						outsider_inlets += '<option data-search="'+outlets_extra_json[i].name.toLowerCase()+'" value="'+outlets_extra_json[i].code+'" data-necessity="'+outlets_extra_json[i].necessity+'" data-outlet_diameter="'+outlets_extra_json[i].diameter+'" data-outlet_amount="'+outlets_extra_json[i].amount+'" data-outlet_unit="'+outlets_extra_json[i].unit+'">'+outlets_extra_json[i].name.toUpperCase()+'</option>';
-					});
-					
-					$.each(outlets_extra_json_other, function(i, item) {
-						outsider_inlets_other += '<option data-search="'+outlets_extra_json_other[i].name.toLowerCase()+'" value="'+outlets_extra_json_other[i].code+'" data-necessity="'+outlets_extra_json_other[i].necessity+'" data-outlet_diameter="'+outlets_extra_json_other[i].diameter+'" data-outlet_amount="'+outlets_extra_json_other[i].amount+'" data-outlet_unit="'+outlets_extra_json_other[i].unit+'">'+outlets_extra_json_other[i].name.toUpperCase()+'</option>';
-					});
-					
-					outsider_inlets += outsider_inlets_other;
-					outlets += outsider_inlets_other;
-					
-					
-
+				});
 				
+				$.each(muu_cats, function(i, item) {
+					var current_cat = item.identifier;
+						current_sub = helper.category_and_children(helper.find_category_by_path(['muu', current_cat]));
+					
+					var current_json = helper.filter_ingredients_by_categories(o, current_sub);
+
+					$.each(current_json, function(i, item) {
+						var json_val = encodeURIComponent(JSON.stringify({"ingredient": current_json[i].code, "amount": current_json[i].amount, "height": 0, "angle": 0, "drop": 0}));                                            
+							muu_opts += '<label><input type="checkbox" data-necessity="'+current_json[i].necessity+'" data-id="'+current_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+current_json[i].unit+'">'+current_json[i].name+'</label>';
+					});
+				});
+
+				$.each(pohja_cats, function(i, item) {
+					var current_cat = item.identifier;
+						current_sub = helper.category_and_children(helper.find_category_by_path(['pohja', current_cat]));
+					
+					var current_json = helper.filter_ingredients_by_categories(o, current_sub);
+
+					$.each(current_json, function(i, item) {
+						var json_val = encodeURIComponent(JSON.stringify({"ingredient": current_json[i].code, "amount": current_json[i].amount, "height": 0, "angle": 0, "drop": 0}));                                            
+							pohja_opts += '<label><input type="checkbox" data-necessity="'+current_json[i].necessity+'" data-id="'+current_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+current_json[i].unit+'">'+current_json[i].name+'</label>';
+					});
+				});
+
+				$.each(runko_cats, function(i, item) {
+					var current_cat = item.identifier;
+						current_sub = helper.category_and_children(helper.find_category_by_path(['runko', current_cat]));
+					
+					var current_json = helper.filter_ingredients_by_categories(o, current_sub);
+
+					$.each(current_json, function(i, item) {
+						var json_val = encodeURIComponent(JSON.stringify({"ingredient": current_json[i].code, "amount": current_json[i].amount, "height": 0, "angle": 0, "drop": 0}));                                            
+							runko_opts += '<label><input type="checkbox" data-necessity="'+current_json[i].necessity+'" data-id="'+current_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+current_json[i].unit+'">'+current_json[i].name+'</label>';
+					});
+				});
+				
+				$.each(sakkapesa_cats, function(i, item) {
+					var current_cat = item.identifier;
+						current_sub = helper.category_and_children(helper.find_category_by_path(['sakkapesa', current_cat]));
+					
+					var current_json = helper.filter_ingredients_by_categories(o, current_sub);
+
+					$.each(current_json, function(i, item) {
+						var json_val = encodeURIComponent(JSON.stringify({"ingredient": current_json[i].code, "amount": current_json[i].amount, "height": 0, "angle": 0, "drop": 0}));                                            
+							sakkapesa_opts += '<label><input type="checkbox" data-necessity="'+current_json[i].necessity+'" data-id="'+current_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+current_json[i].unit+'">'+current_json[i].name+'</label>';
+					});
+				});
+				
+				$.each(teleskoopit_cats, function(i, item) {
+					var current_cat = item.identifier;
+						current_sub = helper.category_and_children(helper.find_category_by_path(['teleskoopit', current_cat]));
+					
+					var current_json = helper.filter_ingredients_by_categories(o, current_sub);
+
+					$.each(current_json, function(i, item) {
+						var json_val = encodeURIComponent(JSON.stringify({"ingredient": current_json[i].code, "amount": current_json[i].amount, "height": 0, "angle": 0, "drop": 0}));                                            
+							teleskoopit_opts += '<label><input type="checkbox" data-necessity="'+current_json[i].necessity+'" data-id="'+current_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+current_json[i].unit+'">'+current_json[i].name+'</label>';
+					});
+				});
+				
+				$.each(venttiili_cats, function(i, item) {
+					var current_cat = item.identifier;
+						current_sub = helper.category_and_children(helper.find_category_by_path(['venttiili', current_cat]));
+					
+					var current_json = helper.filter_ingredients_by_categories(o, current_sub);
+
+					$.each(current_json, function(i, item) {
+						var json_val = encodeURIComponent(JSON.stringify({"ingredient": current_json[i].code, "amount": current_json[i].amount, "height": 0, "angle": 0, "drop": 0}));                                            
+							venttiili_opts += '<label><input type="checkbox" data-necessity="'+current_json[i].necessity+'" data-id="'+current_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+current_json[i].unit+'">'+current_json[i].name+'</label>';
+					});
+				});
+
+				//inlets n outlet
+				$.each(outlets_json, function(i, item) {
+					outlets += '<option class="primary" data-search="'+outlets_json[i].name.toLowerCase()+'" value="'+outlets_json[i].code+'" data-necessity="'+outlets_json[i].necessity+'" data-outlet_diameter="'+outlets_json[i].diameter+'" data-outlet_amount="'+outlets_json[i].amount+'" data-outlet_unit="'+outlets_json[i].unit+'">'+outlets_json[i].name.toUpperCase()+'</option>';
+				});
+					
+				$.each(outlets_extra_json, function(i, item) {
+					outsider_inlets += '<option data-search="'+outlets_extra_json[i].name.toLowerCase()+'" value="'+outlets_extra_json[i].code+'" data-necessity="'+outlets_extra_json[i].necessity+'" data-outlet_diameter="'+outlets_extra_json[i].diameter+'" data-outlet_amount="'+outlets_extra_json[i].amount+'" data-outlet_unit="'+outlets_extra_json[i].unit+'">'+outlets_extra_json[i].name.toUpperCase()+'</option>';
+				});
+					
+				$.each(outlets_extra_json_other, function(i, item) {
+					outsider_inlets_other += '<option data-search="'+outlets_extra_json_other[i].name.toLowerCase()+'" value="'+outlets_extra_json_other[i].code+'" data-necessity="'+outlets_extra_json_other[i].necessity+'" data-outlet_diameter="'+outlets_extra_json_other[i].diameter+'" data-outlet_amount="'+outlets_extra_json_other[i].amount+'" data-outlet_unit="'+outlets_extra_json_other[i].unit+'">'+outlets_extra_json_other[i].name.toUpperCase()+'</option>';
+				});
+					
+				outsider_inlets += outsider_inlets_other;
+				outlets += outsider_inlets_other;
+
+
 				card_wrap.find('.multi_selector_wrap').append('<div class="checkbox_wrap cards_wrap"><div class="details_title">'+lang_txt["cards"]+':</div><div class="checkbox_content">'+$('#menu_items').html()+'</div></div>');
-
-
 				var scroll_el = card_wrap.find('.cards_wrap .tag[data-identifier="'+card_identifier+'"]');
 				var scroll_offset = scroll_el.position().top;
 				
 				scroll_el.addClass('active');
 				card_wrap.find('.cards_wrap .checkbox_content').scrollTop(scroll_offset);
 				
-				if(sakka_opt.length > 0){card_wrap.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title">'+lang_txt["height_deposit"]+':</div><div class="checkbox_content">'+sakka_opt+'</div></div>');}
-				if(teleskooppi_opt.length > 0){card_wrap.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title">'+lang_txt["telescope"]+':</div><div class="checkbox_content">'+teleskooppi_opt+'</div></div>');}
-				if(kansi_opt.length > 0){card_wrap.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title">'+lang_txt["lid"]+':</div><div class="checkbox_content">'+kansi_opt+'</div></div>');} 
-				if(runkoputki_opt.length > 0){card_wrap.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title">'+lang_txt["frame"]+':</div><div class="checkbox_content">'+runkoputki_opt+'</div></div>');} 
-				if(rungon_osat_opt.length > 0){card_wrap.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title">'+lang_txt["frame_parts"]+':</div><div class="checkbox_content">'+rungon_osat_opt+'</div></div>');} 
-				if(venttiili_opt.length > 0){card_wrap.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title">'+lang_txt["water_lock"]+':</div><div class="checkbox_content">'+venttiili_opt+'</div></div>');}
-				if(pohja_opt.length > 0){card_wrap.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title">'+lang_txt["base"]+':</div><div class="checkbox_content">'+pohja_opt+'</div></div>');}
-				if(lisavaruste_opt.length > 0){card_wrap.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title">'+lang_txt["addons"]+':</div><div class="checkbox_content">'+lisavaruste_opt+'</div></div>');}
+				if(sakkapesa_opts.length > 0){card_wrap.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title">'+lang_txt["height_deposit"]+':</div><div class="checkbox_content">'+sakkapesa_opts+'</div></div>');}
+				if(teleskoopit_opts.length > 0){card_wrap.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title">'+lang_txt["telescope"]+':</div><div class="checkbox_content">'+teleskoopit_opts+'</div></div>');}
+				if(kansi_opts.length > 0){card_wrap.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title">'+lang_txt["lid"]+':</div><div class="checkbox_content">'+kansi_opts+'</div></div>');} 
+				if(runko_opts.length > 0){card_wrap.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title">'+lang_txt["frame"]+':</div><div class="checkbox_content">'+runko_opts+'</div></div>');} 
+
+				if(venttiili_opts.length > 0){card_wrap.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title">'+lang_txt["water_lock"]+':</div><div class="checkbox_content">'+venttiili_opts+'</div></div>');}
+				if(pohja_opts.length > 0){card_wrap.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title">'+lang_txt["base"]+':</div><div class="checkbox_content">'+pohja_opts+'</div></div>');}
+				if(lisavaruste_opts.length > 0){card_wrap.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title">'+lang_txt["addons"]+':</div><div class="checkbox_content">'+lisavaruste_opts+'</div></div>');}
+				if(muu_opts.length > 0){card_wrap.find('.multi_selector_wrap').append('<div class="checkbox_wrap"><div class="details_title">'+lang_txt["others"]+':</div><div class="checkbox_content">'+muu_opts+'</div></div>');}
+
 
 				//outlet select
 				var outlet_wrap = card_wrap.find('.card_outlet_wrap');
+ 
+				var outlet_dia = outlet_wrap.find('div.val_tag').eq(0).attr('data-value'),
+					outlet_height = outlet_wrap.find('div.val_tag').eq(1).attr('data-value'),
+					outlet_type = outlet_wrap.find('div.val_tag').eq(2).attr('data-value'),
+					outlet_angle = outlet_wrap.find('div.val_tag').eq(3).attr('data-value');
 
-				var outlet_dia = outlet_wrap.find('div').eq(0).attr('data-value'),
-					outlet_height = outlet_wrap.find('div').eq(1).attr('data-value'),
-					outlet_type = outlet_wrap.find('div').eq(2).attr('data-value'),
-					outlet_angle = outlet_wrap.find('div').eq(3).attr('data-value');
-
-				var outlet_obj = '<div class="outlet_wrap" data-wanted="Haluttu: '+outlet_type+' '+outlet_dia+'">'+
+				var outlet_obj = '<div class="outlet_wrap">'+
 									'<label>'+lang_txt["outlet"]+':'+
 										'<select class="outlet_select" name="outlet_select">'+
 										
@@ -1131,7 +1148,7 @@ function ScrollZoom(container,max_scale,factor){
 
 								  '</div>';
 
-				outlet_wrap.html(outlet_obj);
+				outlet_wrap.find('.dynamic_wrap').html(outlet_obj);
 
 
 				var outlet_select = outlet_wrap.find('.outlet_select');
@@ -1159,14 +1176,14 @@ function ScrollZoom(container,max_scale,factor){
 
 					var inlet_wrap = $(this);
 
-					var inlet_dia = inlet_wrap.find('div').eq(0).attr('data-value'),
-						inlet_height = inlet_wrap.find('div').eq(1).attr('data-value'),
-						inlet_type = inlet_wrap.find('div').eq(2).attr('data-value'),
-						inlet_angle = inlet_wrap.find('div').eq(3).attr('data-value');
+					var inlet_dia = inlet_wrap.find('div.val_tag').eq(0).attr('data-value'),
+						inlet_height = inlet_wrap.find('div.val_tag').eq(1).attr('data-value'),
+						inlet_type = inlet_wrap.find('div.val_tag').eq(2).attr('data-value'),
+						inlet_angle = inlet_wrap.find('div.val_tag').eq(3).attr('data-value');
 
 						if(inlet_height !== '0'){inlet_height = parseFloat(inlet_height)/10}
 						
-					var inlet_obj = '<div class="inlet_wrap" data-wanted="'+lang_txt["wanted"]+': '+inlet_type+' '+inlet_dia+'">'+
+					var inlet_obj = '<div class="inlet_wrap">'+
 										'<label>'+lang_txt["inlet"]+' '+inlet_count+':'+
 											'<select class="inlet_select" name="inlet_select'+inlet_count+'">'+
 											
@@ -1176,7 +1193,7 @@ function ScrollZoom(container,max_scale,factor){
 										'<label>'+lang_txt["angle"]+':<input type="number" min="0" class="inlet_angle" name="inlet_angle'+inlet_count+'" value="'+inlet_angle+'" disabled>&deg;</label>'+
 									'</div>';
 
-					inlet_wrap.html(inlet_obj);
+					inlet_wrap.find('.dynamic_wrap').html(inlet_obj);
 					
 					
 					var current_select = inlet_wrap.find('.inlet_select');
@@ -1248,41 +1265,55 @@ function ScrollZoom(container,max_scale,factor){
 	}
 
 
-	var base_url = window.location.origin;
-
 	function final_code() {
 		
-	var duplicate = false,
-		wells_json = [],
-		cards_found = false;
+	var wells_json = [],
+		cards_found = false,
+		duplicate = false;
 
 		$('.card').not('.error').each(function() {
 
 		cards_found = true;
 		
-		  var obj = $(this);
-		
-		  var well_id = obj.attr('data-well_name');
+		var obj = $(this),
+			well_id = obj.attr('data-well_name');
+			json_row = [],
+			json_id = null,
+			json_ingredients = [];
 		  
-			if($('.card[data-well_name="'+well_id+'"]').not(obj).length > 0 || $('.preloaded_card[data-id="'+well_id+'"]').length > 0){
-
-				duplicate = true;
-
-				obj.addClass('duplicate');
-				$('html, body').scrollTop(obj.position().top - 100);
+		if(old_wells.length){
 			
-				setTimeout(function(){obj.removeClass('duplicate');}, 3000);
-			
-				alert(lang_txt["duplicate_id"]);
+			$.each(old_wells, function(i, v) {
+					if (v.identifier == well_id) {
+						json_row = v;
+						json_id = v.id;
+						json_ingredients = v.ingredients;
+						return false;
+					}
+			});
 
-				return false;
+		}
 
-			}
+		  
+		if($('.card[data-well_name="'+well_id+'"]').not(obj).length > 0){
+
+			duplicate = true;
+
+			obj.addClass('duplicate');
+			$('html, body').scrollTop(obj.position().top - 100);
 			
-		  var obj_id_full = well_id,
-			  obj_height = parseFloat(obj.find('.well_height').val()),
-			  obj_height_chamber = parseFloat(obj.find('.sp_height').val()),
-			  obj_wellgroup = obj.attr('data-frame_id');
+			setTimeout(function(){obj.removeClass('duplicate');}, 3000);
+			
+			alert(lang_txt["duplicate_id"]);
+
+			return false;
+
+		}
+
+		var obj_id_full = well_id,
+			obj_height = parseFloat(obj.find('.well_height').val()),
+			obj_height_chamber = parseFloat(obj.find('.sp_height').val()),
+			obj_wellgroup = obj.attr('data-frame_id');
 
 			var card_code = [];
 			var card_ingredients_json = [];
@@ -1325,11 +1356,35 @@ function ScrollZoom(container,max_scale,factor){
 	 
 				card_ingredients_json.push(card_ingredients);
 			});
+			
+			
+			
+			
 
+			var id_runner = 0;
+	/*
+			$.each(card_ingredients_json, function(i, v) {
+
+				if(json_ingredients[id_runner]){
+					var db_id = json_ingredients[id_runner].id;
+					v['id'] = db_id;
+				}
+
+				id_runner++;
+				
+			});		
+*/
 			card_code = {'identifier': obj_id_full, 'amount': 1, 'height_ground': obj_height, 'height_water': 0, 'height_sp': obj_height_chamber, 'wellgroup': obj_wellgroup, 'ingredients': card_ingredients_json};
+			
+			if(json_id){
+				card_code['id'] = json_id;
+			}
+
 			wells_json.push(card_code);
 
 		});
+		
+console.log(wells_json);
 
 		if(duplicate == false && cards_found == true){
 
@@ -1356,8 +1411,7 @@ function ScrollZoom(container,max_scale,factor){
 						spinner.removeClass('active');
 						window.open(base_url+'/heavyuser_wellorders/'+wor);
 						
-						$('#return_button').attr('href', base_url+'/heavyuser_wellorders/'+wor);
-						$('#return_button').show();
+						$('#send_codes').hide();
 					
 					}
 				});
