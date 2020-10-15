@@ -451,7 +451,9 @@ body{
     border-radius: 15px;
 }
 
-
+.csv_card .cards_wrap{
+	display:none;
+}
 .checkbox_wrap a[data-type="SVK"]::before, .card[data-frame_type="SVK"] .well_tag::before {background-color: #268e2a;}
 .checkbox_wrap a[data-type="SVTK"]::before, .card[data-frame_type="SVTK"] .well_tag::before{background-color: #caa700;}
 .checkbox_wrap a[data-type="JVTK"]::before, .card[data-frame_type="JVTK"] .well_tag::before{background-color: #cb0000;}
