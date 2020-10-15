@@ -356,7 +356,7 @@ function ScrollZoom(container,max_scale,factor){
 			var vector = '<div class="obj_2d"><div class="obj_2d_center">'+pipe_models+'</div></div>';
 			
             if(frame_id !== 0){
-                var csv_card = '<div class="card" data-well_id="'+well_name.split('-')[1]+'" data-well_name="'+well_name+'" data-frame_id="'+frame_id+'">'+ vector + '<div class="card_details">'+csv_card_data +'</div><div class="multi_selector_wrap"></div></div>';
+                var csv_card = '<div class="card csv_card" data-well_id="'+well_name.split('-')[1]+'" data-well_name="'+well_name+'" data-frame_id="'+frame_id+'">'+ vector + '<div class="card_details">'+csv_card_data +'</div><div class="multi_selector_wrap"></div></div>';
                 import_cards.append(csv_card);   
             }
 
