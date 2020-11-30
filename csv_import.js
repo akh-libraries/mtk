@@ -1,7 +1,7 @@
 	
 var base_url = window.location.origin;
 var wor = $('#content').attr('data-wellorder-reference');
-	
+
 		var lang_txt = {
 			"upload_button":"Upload csv file",
 			"back_button":"Go back to CCS",
@@ -57,7 +57,6 @@ var wor = $('#content').attr('data-wellorder-reference');
 	$('#csv_importer').before('<div class="hidden" id="zoning_token">'+auth_token+'</div>');
 	$('#csv_importer').html(data_wrap);
 
-
 	var spinner = $('.spinner');
 	var map_content = $('.map_content');
 	var loaded_cards = $('.loaded_cards');
@@ -65,7 +64,7 @@ var wor = $('#content').attr('data-wellorder-reference');
 	var menu_items = $('#menu_items');
 	var helper = null;
 	var api;
-	
+
 	var old_wells = [];
 
 	(function () {
@@ -93,7 +92,7 @@ var wor = $('#content').attr('data-wellorder-reference');
 			});
 
 			menu_items.append(tags);
-		
+
 		}, function(o) {
 			console.log('Failure');
 	});
@@ -320,7 +319,7 @@ function ScrollZoom(container,max_scale,factor){
 
 					if(row_col_key == 'height'){
 						csv_card_data += '<div class="label_row"><label>'+lang_txt["height"]+':<input type="number" min="0" class="well_height" name="well_height" min="0" step="0.01" value="'+(parseFloat(row_col_val)/1000)+'">m</label>';
-						csv_card_data += '<label>'+lang_txt["height_deposit"]+':<input type="number" min="0" class="sp_height" name="sp_height" min="0" step="0.01" value="0">m</label></div>';
+						csv_card_data += '<label>'+lang_txt["height_deposit"]+':<input type="number" min="0" class="custom_sakkapesa_length" name="custom_sakkapesa_length" min="0" step="0.01" value="0">m</label></div>';
 					} else {
 						csv_card_data += '<div class="val_tag" data-key="'+row_col_key+'" data-value="'+row_col_val+'"></div>';
 					}
@@ -613,7 +612,7 @@ function ScrollZoom(container,max_scale,factor){
 									   '<div>'+lang_txt["height_ground"]+': '+mp.toFixed(2)+'</div>'+
 									   '<div>'+lang_txt["height_water"]+': '+vj.toFixed(2)+'</div>'+
 									   '<div class="label_row"><label>Korkeus: <input type="number" min="0" class="well_height" name="well_height" step="0.01" value="'+well_height+'" readonly>m</label>'+
-									   '<label>'+lang_txt["height_deposit"]+': <input type="number" min="0" class="sp_height" name="sp_height" step="0.01" value="'+well_deposit+'">m</label></div>'+									
+									   '<label>'+lang_txt["height_deposit"]+': <input type="number" min="0" class="custom_sakkapesa_length" name="custom_sakkapesa_length" step="0.01" value="'+well_deposit+'">m</label></div>'+									
 									   pipes+
 									   '</div><div class="multi_selector_wrap"></div>';
 
@@ -774,7 +773,7 @@ function ScrollZoom(container,max_scale,factor){
 									   '<div>'+lang_txt["height_ground"]+': '+mp.toFixed(2)+'</div>'+
 									   '<div>'+lang_txt["height_water"]+': '+vj.toFixed(2)+'</div>'+
 									   '<div class="label_row"><label>Korkeus: <input type="number" min="0" class="well_height" name="well_height" step="0.01" value="'+well_height+'" readonly>m</label>'+
-									   '<label>'+lang_txt["height_deposit"]+': <input type="number" min="0" class="sp_height" name="sp_height" step="0.01" value="'+well_deposit+'">m</label></div>'+									
+									   '<label>'+lang_txt["height_deposit"]+': <input type="number" min="0" class="custom_sakkapesa_length" name="custom_sakkapesa_length" step="0.01" value="'+well_deposit+'">m</label></div>'+									
 									   pipes+
 									   '</div><div class="multi_selector_wrap"></div>';
 
@@ -1012,16 +1011,16 @@ function ScrollZoom(container,max_scale,factor){
 					$.each(current_json, function(i, item) {
 
 						if(current_cat == 'poisto' || current_cat == 'tulo_tai_poisto'){	
-							outlets_opts += '<option class="primary" data-main_cat_id="'+outlets_cats_main_id+'" data-sub_cat_id="'+current_cat_id+'" data-search="'+current_json[i].name.toLowerCase()+'" value="'+current_json[i].code+'" data-necessity="'+current_json[i].necessity+'" data-outlet_diameter="'+current_json[i].diameter+'" data-outlet_amount="'+current_json[i].amount+'" data-outlet_unit="'+current_json[i].unit+'">'+current_json[i].name.toUpperCase()+'</option>';
+							outlets_opts += '<option class="primary" data-parent_id="'+outlets_cats_main_id+'" data-category_id="'+current_cat_id+'" data-search="'+current_json[i].name.toLowerCase()+'" value="'+current_json[i].code+'" data-necessity="'+current_json[i].necessity+'" data-outlet_diameter="'+current_json[i].diameter+'" data-outlet_amount="'+current_json[i].amount+'" data-outlet_unit="'+current_json[i].unit+'">'+current_json[i].name.toUpperCase()+'</option>';
 						}
 				
 						if(current_cat == 'tulo' || current_cat == 'tulo_tai_poisto'){	
-							inlets_opts += '<option class="primary" data-main_cat_id="'+outlets_cats_main_id+'" data-sub_cat_id="'+current_cat_id+'" data-search="'+current_json[i].name.toLowerCase()+'" value="'+current_json[i].code+'" data-necessity="'+current_json[i].necessity+'" data-outlet_diameter="'+current_json[i].diameter+'" data-outlet_amount="'+current_json[i].amount+'" data-outlet_unit="'+current_json[i].unit+'">'+current_json[i].name.toUpperCase()+'</option>';
+							inlets_opts += '<option class="primary" data-parent_id="'+outlets_cats_main_id+'" data-category_id="'+current_cat_id+'" data-search="'+current_json[i].name.toLowerCase()+'" value="'+current_json[i].code+'" data-necessity="'+current_json[i].necessity+'" data-outlet_diameter="'+current_json[i].diameter+'" data-outlet_amount="'+current_json[i].amount+'" data-outlet_unit="'+current_json[i].unit+'">'+current_json[i].name.toUpperCase()+'</option>';
 						}			
 						
 					});
 				});
-				
+
 				//basic parts
 				$.each(kansi_cats, function(i, item) {
 					var current_cat = item.identifier,
@@ -1031,7 +1030,7 @@ function ScrollZoom(container,max_scale,factor){
 					var current_json = helper.filter_ingredients_by_categories(o, current_sub);
 
 					$.each(current_json, function(i, item) {
-						var json_val = encodeURIComponent(JSON.stringify({"ingredient": current_json[i].code, "amount": current_json[i].amount, "height": 0, "angle": 0, "drop": 0, "main_cat_id": kansi_cats_main_id, "sub_cat_id": current_cat_id}));                                            
+						var json_val = encodeURIComponent(JSON.stringify({"code": current_json[i].code, "amount": current_json[i].amount, "height": 0, "angle": 0, "drop": 0, "frame": 0, "parent_id": kansi_cats_main_id, "category_id": current_cat_id}));                                            
 							kansi_opts += '<label><input type="checkbox" data-necessity="'+current_json[i].necessity+'" data-id="'+current_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+current_json[i].unit+'">'+current_json[i].name+'</label>';
 					});
 				});
@@ -1044,7 +1043,7 @@ function ScrollZoom(container,max_scale,factor){
 					var current_json = helper.filter_ingredients_by_categories(o, current_sub);
 
 					$.each(current_json, function(i, item) {
-						var json_val = encodeURIComponent(JSON.stringify({"ingredient": current_json[i].code, "amount": current_json[i].amount, "height": 0, "angle": 0, "drop": 0, "main_cat_id": lisavaruste_cats_main_id, "sub_cat_id": current_cat_id}));                                            
+						var json_val = encodeURIComponent(JSON.stringify({"code": current_json[i].code, "amount": current_json[i].amount, "height": 0, "angle": 0, "drop": 0, "frame": 0, "parent_id": lisavaruste_cats_main_id, "category_id": current_cat_id}));                                            
 							lisavaruste_opts += '<label><input type="checkbox" data-necessity="'+current_json[i].necessity+'" data-id="'+current_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+current_json[i].unit+'">'+current_json[i].name+'</label>';
 					});
 				});
@@ -1057,7 +1056,7 @@ function ScrollZoom(container,max_scale,factor){
 					var current_json = helper.filter_ingredients_by_categories(o, current_sub);
 
 					$.each(current_json, function(i, item) {
-						var json_val = encodeURIComponent(JSON.stringify({"ingredient": current_json[i].code, "amount": current_json[i].amount, "height": 0, "angle": 0, "drop": 0, "main_cat_id": muu_cats_main_id, "sub_cat_id": current_cat_id}));                                            
+						var json_val = encodeURIComponent(JSON.stringify({"code": current_json[i].code, "amount": current_json[i].amount, "height": 0, "angle": 0, "drop": 0, "frame": 0, "parent_id": muu_cats_main_id, "category_id": current_cat_id}));                                            
 							muu_opts += '<label><input type="checkbox" data-necessity="'+current_json[i].necessity+'" data-id="'+current_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+current_json[i].unit+'">'+current_json[i].name+'</label>';
 					});
 				});
@@ -1070,7 +1069,7 @@ function ScrollZoom(container,max_scale,factor){
 					var current_json = helper.filter_ingredients_by_categories(o, current_sub);
 
 					$.each(current_json, function(i, item) {
-						var json_val = encodeURIComponent(JSON.stringify({"ingredient": current_json[i].code, "amount": current_json[i].amount, "height": 0, "angle": 0, "drop": 0, "main_cat_id": pohja_cats_main_id, "sub_cat_id": current_cat_id}));                                            
+						var json_val = encodeURIComponent(JSON.stringify({"code": current_json[i].code, "amount": current_json[i].amount, "height": 0, "angle": 0, "drop": 0, "frame": 0, "parent_id": pohja_cats_main_id, "category_id": current_cat_id}));                                            
 							pohja_opts += '<label><input type="checkbox" data-necessity="'+current_json[i].necessity+'" data-id="'+current_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+current_json[i].unit+'">'+current_json[i].name+'</label>';
 					});
 				});
@@ -1083,7 +1082,7 @@ function ScrollZoom(container,max_scale,factor){
 					var current_json = helper.filter_ingredients_by_categories(o, current_sub);
 
 					$.each(current_json, function(i, item) {
-						var json_val = encodeURIComponent(JSON.stringify({"ingredient": current_json[i].code, "amount": current_json[i].amount, "height": 0, "angle": 0, "drop": 0, "main_cat_id": runko_cats_main_id, "sub_cat_id": current_cat_id}));                                            
+						var json_val = encodeURIComponent(JSON.stringify({"code": current_json[i].code, "amount": current_json[i].amount, "height": 0, "angle": 0, "drop": 0, "frame": 1, "parent_id": runko_cats_main_id, "category_id": current_cat_id}));                                            
 							runko_opts += '<label><input type="checkbox" data-necessity="'+current_json[i].necessity+'" data-id="'+current_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+current_json[i].unit+'">'+current_json[i].name+'</label>';
 					});
 				});
@@ -1096,7 +1095,7 @@ function ScrollZoom(container,max_scale,factor){
 					var current_json = helper.filter_ingredients_by_categories(o, current_sub);
 
 					$.each(current_json, function(i, item) {
-						var json_val = encodeURIComponent(JSON.stringify({"ingredient": current_json[i].code, "amount": current_json[i].amount, "height": 0, "angle": 0, "drop": 0, "main_cat_id": sakkapesa_cats_main_id, "sub_cat_id": current_cat_id}));                                            
+						var json_val = encodeURIComponent(JSON.stringify({"code": current_json[i].code, "amount": current_json[i].amount, "height": 0, "angle": 0, "drop": 0, "frame": 0, "parent_id": sakkapesa_cats_main_id, "category_id": current_cat_id}));                                            
 							sakkapesa_opts += '<label><input type="checkbox" data-necessity="'+current_json[i].necessity+'" data-id="'+current_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+current_json[i].unit+'">'+current_json[i].name+'</label>';
 					});
 				});
@@ -1109,7 +1108,7 @@ function ScrollZoom(container,max_scale,factor){
 					var current_json = helper.filter_ingredients_by_categories(o, current_sub);
 
 					$.each(current_json, function(i, item) {
-						var json_val = encodeURIComponent(JSON.stringify({"ingredient": current_json[i].code, "amount": current_json[i].amount, "height": 0, "angle": 0, "drop": 0, "main_cat_id": teleskoopit_cats_main_id, "sub_cat_id": current_cat_id}));                                            
+						var json_val = encodeURIComponent(JSON.stringify({"code": current_json[i].code, "amount": current_json[i].amount, "height": 0, "angle": 0, "drop": 0, "frame": 0, "parent_id": teleskoopit_cats_main_id, "category_id": current_cat_id}));                                            
 							teleskoopit_opts += '<label><input type="checkbox" data-necessity="'+current_json[i].necessity+'" data-id="'+current_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+current_json[i].unit+'">'+current_json[i].name+'</label>';
 					});
 				});
@@ -1122,7 +1121,7 @@ function ScrollZoom(container,max_scale,factor){
 					var current_json = helper.filter_ingredients_by_categories(o, current_sub);
 
 					$.each(current_json, function(i, item) {
-						var json_val = encodeURIComponent(JSON.stringify({"ingredient": current_json[i].code, "amount": current_json[i].amount, "height": 0, "angle": 0, "drop": 0, "main_cat_id": venttiili_cats_main_id, "sub_cat_id": current_cat_id}));                                            
+						var json_val = encodeURIComponent(JSON.stringify({"code": current_json[i].code, "amount": current_json[i].amount, "height": 0, "angle": 0, "drop": 0, "frame": 0, "parent_id": venttiili_cats_main_id, "category_id": current_cat_id}));                                            
 							venttiili_opts += '<label><input type="checkbox" data-necessity="'+current_json[i].necessity+'" data-id="'+current_json[i].code+'" value="'+json_val+'" data-outlet_unit="'+current_json[i].unit+'">'+current_json[i].name+'</label>';
 					});
 				});
@@ -1329,7 +1328,7 @@ function ScrollZoom(container,max_scale,factor){
 
 		var obj_id_full = well_id,
 			obj_height = parseFloat(obj.find('.well_height').val()),
-			obj_height_chamber = parseFloat(obj.find('.sp_height').val()),
+			obj_height_chamber = parseFloat(obj.find('.custom_sakkapesa_length').val()),
 			obj_wellgroup = obj.attr('data-frame_id');
 
 			var card_code = [];
@@ -1349,13 +1348,14 @@ function ScrollZoom(container,max_scale,factor){
 					selected = wrap.find('option:selected'),
 					selected_part = selected.val(),
 					o_amount = parseFloat(selected.attr('data-outlet_amount')),
-					o_main_id = parseFloat(selected.attr('data-main_cat_id')),
-					o_sub_id = parseFloat(selected.attr('data-sub_cat_id')),
+					o_main_id = parseFloat(selected.attr('data-parent_id')),
+					o_sub_id = parseFloat(selected.attr('data-category_id')),
 					o_height = 0,
 					o_angle = 0,
-					o_drop = 0;
+					o_drop = 0,
+					o_frame = 0;
 	 
-				var card_ingredients = {'ingredient': selected_part, 'amount': o_amount, 'height': o_height, 'angle': o_angle, 'drop': o_drop, 'main_cat_id': o_main_id, 'sub_cat_id': o_sub_id};
+				var card_ingredients = {'code': selected_part, 'amount': o_amount, 'height': o_height, 'angle': o_angle, 'drop': o_drop, 'parent_id': o_main_id, 'category_id': o_sub_id, 'frame': o_frame};
 	 
 				card_ingredients_json.push(card_ingredients);
 			});
@@ -1367,32 +1367,34 @@ function ScrollZoom(container,max_scale,factor){
 					selected = wrap.find('option:selected'),
 					selected_part = selected.val(),
 					o_amount = parseFloat(selected.attr('data-outlet_amount')),
-					o_main_id = parseFloat(selected.attr('data-main_cat_id')),
-					o_sub_id = parseFloat(selected.attr('data-sub_cat_id')),
+					o_main_id = parseFloat(selected.attr('data-parent_id')),
+					o_sub_id = parseFloat(selected.attr('data-category_id')),
 					o_height = parseFloat(wrap.find('.inlet_height').val()),
 					o_angle = parseFloat(wrap.find('.inlet_angle').val()),
-					o_drop = 0;
+					o_drop = 0,
+					o_frame = 0;
 	 
-				var card_ingredients = {'ingredient': selected_part, 'amount': o_amount, 'height': o_height, 'angle': o_angle, 'drop': o_drop, 'main_cat_id': o_main_id, 'sub_cat_id': o_sub_id};
+				var card_ingredients = {'code': selected_part, 'amount': o_amount, 'height': o_height, 'angle': o_angle, 'drop': o_drop, 'parent_id': o_main_id, 'category_id': o_sub_id, 'frame': o_frame};
 	 
 				card_ingredients_json.push(card_ingredients);
 			});
 
 			var id_runner = 0;
-	/*
-			$.each(card_ingredients_json, function(i, v) {
+			
+			/*
+					$.each(card_ingredients_json, function(i, v) {
 
-				if(json_ingredients[id_runner]){
-					var db_id = json_ingredients[id_runner].id;
-					v['id'] = db_id;
-				}
+						if(json_ingredients[id_runner]){
+							var db_id = json_ingredients[id_runner].id;
+							v['id'] = db_id;
+						}
 
-				id_runner++;
-				
-			});		
-	*/
+						id_runner++;
+						
+					});		
+			*/
 
-			card_code = {'identifier': obj_id_full, 'amount': 1, 'height_ground': obj_height, 'height_water': 0, 'height_sp': obj_height_chamber, 'wellgroup': obj_wellgroup, 'ingredients': card_ingredients_json};
+			card_code = {'identifier': obj_id_full, 'amount': 1, 'height_ground': obj_height, 'height_water': 0, 'custom_sakkapesa_length': obj_height_chamber, 'wellgroup': obj_wellgroup, 'ingredients': card_ingredients_json};
 			
 			if(json_id){
 				card_code['id'] = json_id;
@@ -1447,3 +1449,6 @@ function ScrollZoom(container,max_scale,factor){
 
 	var parseFile = new uploadFile();
 	parseFile.getFile();
+	
+	
+	
