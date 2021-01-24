@@ -21,6 +21,7 @@ var wor = $('#content').attr('data-wellorder-reference');
 			"outlet":"Outlet",
 			"inlet":"Inlet",
 			"wanted":"Wanted",
+			"card":"Card",
 			"cards":"Cards",
 			"telescope":"Telescope",
 			"lid":"Lid",
@@ -39,7 +40,8 @@ var wor = $('#content').attr('data-wellorder-reference');
 			"upload_file_error":"Upload a file first!",
 			"duplicate_id":"Duplicate id!",
 			"connection_error":"Connection error, try again in a second.",
-			"error":"Error"
+			"error":"Error",
+			"negative_error":"has a negative inlet height, fix the error and try again!",
 		};
 
 	var auth_token = $('#content').attr('data-authenticity-token');
@@ -1201,11 +1203,17 @@ function ScrollZoom(container,max_scale,factor){
 					var inlet_wrap = $(this);
 
 					var inlet_dia = inlet_wrap.find('div.val_tag').eq(0).attr('data-value'),
-						inlet_height = inlet_wrap.find('div.val_tag').eq(1).attr('data-value'),
+						inlet_height = parseFloat(inlet_wrap.find('div.val_tag').eq(1).attr('data-value')),
 						inlet_type = inlet_wrap.find('div.val_tag').eq(2).attr('data-value'),
 						inlet_angle = inlet_wrap.find('div.val_tag').eq(3).attr('data-value');
 
-						if(inlet_height !== '0'){inlet_height = parseFloat(inlet_height)/10}
+					var negative_value_msg = '';
+					
+						if(inlet_height !== 0){inlet_height = parseFloat(inlet_height)/10}
+						
+						if(inlet_height < 0){
+							negative_value_msg = '<span class="warning_msg">Original value is negative! ('+inlet_height+'cm)</span>';	
+						}
 						
 					var inlet_obj = '<div class="inlet_wrap">'+
 										'<label>'+lang_txt["inlet"]+' '+inlet_count+':'+
@@ -1213,7 +1221,7 @@ function ScrollZoom(container,max_scale,factor){
 											
 											'</select>'+
 										'</label>'+
-										'<label>'+lang_txt["height"]+':<input type="number" min="0" class="inlet_height" name="inlet_height'+inlet_count+'" value="'+inlet_height+'">cm</label>'+
+										'<label>'+lang_txt["height"]+':<input type="number" min="0" class="inlet_height" name="inlet_height'+inlet_count+'" value="'+inlet_height+'">cm '+negative_value_msg+'</label>'+
 										'<label>'+lang_txt["angle"]+':<input type="number" min="0" class="inlet_angle" name="inlet_angle'+inlet_count+'" value="'+inlet_angle+'" disabled>&deg;</label>'+
 									'</div>';
 
@@ -1280,7 +1288,6 @@ function ScrollZoom(container,max_scale,factor){
 
 		if(option_to_select.length == 0){
 			option_to_select = target_select_wrap.find('option[data-outlet_diameter="'+diameter+'"]').first();
-			target_select_wrap.addClass('warning');
 			target_select_wrap.after('<span class="warning_msg">wanted: '+contains_word+' '+diameter+'</span>');
 		}
 
@@ -1293,7 +1300,8 @@ function ScrollZoom(container,max_scale,factor){
 		
 	var wells_json = [],
 		cards_found = false,
-		duplicate = false;
+		duplicate = false,
+		negative_values = false;
 
 		$('.card').not('.error').each(function() {
 
@@ -1318,7 +1326,6 @@ function ScrollZoom(container,max_scale,factor){
 
 		}
 
-		  
 		if($('.card[data-well_name="'+well_id+'"]').not(obj).length > 0){
 
 			duplicate = true;
@@ -1381,10 +1388,20 @@ function ScrollZoom(container,max_scale,factor){
 					o_angle = parseFloat(wrap.find('.inlet_angle').val()),
 					o_drop = 0,
 					o_frame = 0;
+					
+					
+					if(o_height < 0){
+
+						alert(lang_txt["card"]+' '+well_id+' '+lang_txt["negative_error"]);
+						negative_values = true;
+
+					}				
+					
 	 
 				var card_ingredients = {'code': selected_part, 'amount': o_amount, 'height': o_height, 'angle': o_angle, 'drop': o_drop, 'parent_id': o_main_id, 'category_id': o_sub_id, 'frame': o_frame};
 	 
 				card_ingredients_json.push(card_ingredients);
+
 			});
 
 			var id_runner = 0;
@@ -1414,7 +1431,7 @@ function ScrollZoom(container,max_scale,factor){
 		
 		console.log(wells_json);
 
-		if(duplicate == false && cards_found == true){
+		if(duplicate == false && cards_found == true && negative_values == false){
 
 			spinner.addClass('active');
 
